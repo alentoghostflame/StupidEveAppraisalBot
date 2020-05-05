@@ -35,7 +35,7 @@ async def pricecheck(sde: SDEManager, context: commands.context, arg1=None, *arg
             embed = create_embed(sell_orders, buy_orders, item_data, location_data)
             await context.send(embed=embed)
         elif isinstance(location_data, storage.ConstellationData):
-            await context.send("Constellations are not supported yet. Why are you trying to use this anyways?")
+            await context.send(text.PRICECHECK_CONSTELLATIONS)
         elif isinstance(location_data, storage.SolarSystemData):
             region_data = sde.universe.eve.get_region(location_data.region)
             raw_market_data = fetch_market_data(region_data.id, item_data.id)
@@ -52,7 +52,6 @@ def create_embed(sell_orders: typing.List[dict], buy_orders: typing.List[dict], 
     seller_text = ""
     x = 0
     while x < 5 and x < len(sell_orders):
-        # seller_text += "{}): {:,} for {:,} ISK\n".format(x + 1, sell_orders[x]["volume_remain"], sell_orders[x]["price"])
         seller_text += "{}): {} for {} ISK\n".format(x + 1, human_format(sell_orders[x]["volume_remain"], small_dec=0), human_format(sell_orders[x]["price"]))
         x += 1
     if not seller_text:
@@ -62,7 +61,6 @@ def create_embed(sell_orders: typing.List[dict], buy_orders: typing.List[dict], 
     buyer_text = ""
     x = 0
     while x < 5 and x < len(buy_orders):
-        # buyer_text += "{}): {:,} for {:,} ISK\n".format(x + 1, buy_orders[x]["volume_remain"], buy_orders[x]["price"])
         buyer_text += "{}): {} for {} ISK\n".format(x + 1, human_format(buy_orders[x]["volume_remain"], small_dec=0), human_format(buy_orders[x]["price"]))
         x += 1
     if not buyer_text:
@@ -71,10 +69,8 @@ def create_embed(sell_orders: typing.List[dict], buy_orders: typing.List[dict], 
 
     if len(sell_orders) > 0:
         if len(buy_orders) > 0 and sell_orders[0]["price"] * 0.9 <= buy_orders[0]["price"]:
-            # suggestion_text = "Suggested sell price: {:,.2f} ISK (highest buy price)".format(buy_orders[0]["price"])
             suggestion_text = "Suggested sell price: {} ISK (highest buy price)".format(human_format(buy_orders[0]["price"]))
         else:
-            # suggestion_text = "Suggested sell price: {:,.2f} ISK (90% of lowest sell)".format(sell_orders[0]["price"] * 0.9)
             suggestion_text = "Suggested sell price: {} ISK (90% of lowest sell)".format(human_format(sell_orders[0]["price"] * 0.9))
     else:
         suggestion_text = "Not enough data."
