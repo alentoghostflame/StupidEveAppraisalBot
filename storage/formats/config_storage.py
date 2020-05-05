@@ -10,9 +10,13 @@ logger = logging.getLogger("Main")
 class ConfigData:
     def __init__(self):
         self.token: str = ""
+        self.sde_folder_name: str = "sde"
+        self.data_folder: str = "data"
 
     def from_dict(self, state: dict):
         self.token = state.get("token", "")
+        self.sde_folder_name = state.get("sde_folder_name", "sde")
+        self.data_folder = state.get("data_folder", "data")
 
     def to_dict(self):
         return self.__dict__
@@ -21,10 +25,12 @@ class ConfigData:
         if os.path.exists(file_name):
             file = open(file_name, "r")
             self.load_from(file)
+            file.close()
         else:
             logger.warning("Config doesn't exist, creating initial config.")
             file = open(file_name, "w")
             yaml.safe_dump(self.to_dict(), file)
+            file.close()
             logger.warning("Initial config created.")
 
     def load_from(self, file):
