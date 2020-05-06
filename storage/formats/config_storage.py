@@ -9,14 +9,20 @@ logger = logging.getLogger("Main")
 
 class ConfigData:
     def __init__(self):
-        self.token: str = ""
+        self.discord_token: str = ""
         self.sde_folder_name: str = "sde"
         self.data_folder: str = "data"
+        self.eve_app_client_id: str = ""
+        self.eve_app_callback_url: str = ""
+        self.eve_app_access_code: str = ""
 
     def from_dict(self, state: dict):
-        self.token = state.get("token", "")
+        self.discord_token = state.get("discord_token", "")
         self.sde_folder_name = state.get("sde_folder_name", "sde")
         self.data_folder = state.get("data_folder", "data")
+        self.eve_app_client_id = state.get("eve_app_client_id", "")
+        self.eve_app_callback_url = state.get("eve_app_callback_url", "")
+        self.eve_app_access_code = state.get("eve_app_access_code", "")
 
     def to_dict(self):
         return self.__dict__

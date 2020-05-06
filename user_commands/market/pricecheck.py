@@ -52,7 +52,7 @@ def create_embed(sell_orders: typing.List[dict], buy_orders: typing.List[dict], 
     seller_text = ""
     x = 0
     while x < 5 and x < len(sell_orders):
-        seller_text += "{}): {} for {} ISK\n".format(x + 1, human_format(sell_orders[x]["volume_remain"], small_dec=0), human_format(sell_orders[x]["price"]))
+        seller_text += "{}) {} for {} ISK\n".format(x + 1, human_format(sell_orders[x]["volume_remain"], small_dec=0), human_format(sell_orders[x]["price"]))
         x += 1
     if not seller_text:
         seller_text = "None"
@@ -61,7 +61,7 @@ def create_embed(sell_orders: typing.List[dict], buy_orders: typing.List[dict], 
     buyer_text = ""
     x = 0
     while x < 5 and x < len(buy_orders):
-        buyer_text += "{}): {} for {} ISK\n".format(x + 1, human_format(buy_orders[x]["volume_remain"], small_dec=0), human_format(buy_orders[x]["price"]))
+        buyer_text += "{}) {} for {} ISK\n".format(x + 1, human_format(buy_orders[x]["volume_remain"], small_dec=0), human_format(buy_orders[x]["price"]))
         x += 1
     if not buyer_text:
         buyer_text = "None"
@@ -103,7 +103,9 @@ def sort_market_data(raw_market_data: typing.List[dict], system_id: int = None):
 
 def fetch_market_data(region_id: int, item_id: int) -> typing.List[dict]:
     base_url = "https://esi.evetech.net/latest/markets/{}/orders"
-    return requests.get(url=base_url.format(region_id), params={"type_id": item_id}).json()
+    data = requests.get(url=base_url.format(region_id), params={"type_id": item_id}).json()
+    return data
+    # return requests.get(url=base_url.format(region_id), params={"type_id": item_id}).json()
 
 
 def human_format(number: int, dec: int = 2, small_dec: int = 2):
