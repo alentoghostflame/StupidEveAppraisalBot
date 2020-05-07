@@ -1,4 +1,5 @@
-import storage.formats.config_storage
+from storage.formats import ConfigData, EVEAuthStorage
+from storage.controllers import CacheManager, BaseCache
 import logging
 # import typing
 from pathlib import Path
@@ -9,10 +10,14 @@ logger = logging.getLogger("Main")
 
 class DiskManager:
     def __init__(self):
-        self.config = storage.formats.config_storage.ConfigData()
+        self.config: ConfigData = ConfigData()
+        self.cache: CacheManager = CacheManager()
+        self.eve_auth: EVEAuthStorage = EVEAuthStorage(self.config)
 
     def load(self):
         self.config.load()
+        self.cache.load()
+        self.eve_auth.load()
         self.create_data_folders()
 
     def create_data_folders(self):

@@ -1,6 +1,6 @@
 from user_commands.market import text
 from discord.ext import commands
-from storage import SDEManager, ItemData
+from storage import SDEManager, ItemData, EVEAuthStorage
 import requests
 import storage
 import logging
@@ -11,7 +11,7 @@ import typing
 logger = logging.getLogger("Main")
 
 
-async def pricecheck(sde: SDEManager, context: commands.context, arg1=None, *args):
+async def pricecheck(sde: SDEManager, auth: EVEAuthStorage, context: commands.context, arg1=None, *args):
     location_data = None
     item_data = None
 
@@ -41,6 +41,7 @@ async def pricecheck(sde: SDEManager, context: commands.context, arg1=None, *arg
             raw_market_data = fetch_market_data(region_data.id, item_data.id)
             sell_orders, buy_orders = sort_market_data(raw_market_data, location_data.id)
             embed = create_embed(sell_orders, buy_orders, item_data, location_data)
+            # fetch_structure_market_data(auth, location_data.id, item_data.id)
             await context.send(embed=embed)
         else:
             await context.send("PRICECHECK.PY/PRICECHECK, DM TO ALENTO/SOMBRA \"{}\"".format(type(location_data)))
@@ -103,9 +104,39 @@ def sort_market_data(raw_market_data: typing.List[dict], system_id: int = None):
 
 def fetch_market_data(region_id: int, item_id: int) -> typing.List[dict]:
     base_url = "https://esi.evetech.net/latest/markets/{}/orders"
-    data = requests.get(url=base_url.format(region_id), params={"type_id": item_id}).json()
-    return data
-    # return requests.get(url=base_url.format(region_id), params={"type_id": item_id}).json()
+    return requests.get(url=base_url.format(region_id), params={"type_id": item_id}).json()
+
+
+# def fetch_structure_market_data(auth: EVEAuthStorage, solar_system_id: int, item_id: int):
+#     base_url = "https://esi.evetech.net/latest/universe/systems/{}"
+#     data = requests.get(url=base_url.format(solar_system_id)).json()
+#     print(data)
+#
+#     market_ids = fetch_market_structure_ids(auth)
+#     trimmed_market_ids = trim_structure_list(auth, market_ids, solar_system_id)
+#     print(len(trimmed_market_ids))
+#     base_url = "https://esi.evetech.net/latest/markets/structures/{}"
+#     token = auth.get_access_token()
+#     market_data = requests.get(url=base_url.format(1033152401278), params={"token": token}).json()
+#     print(market_data)
+
+
+# def fetch_market_structure_ids(auth: EVEAuthStorage) -> typing.List[int]:
+#     base_url = "https://esi.evetech.net/latest/universe/structures"
+#     token = auth.get_access_token()
+#     return requests.get(url=base_url, params={"filter": "market", "token": token}).json()
+#
+#
+# def trim_structure_list(auth: EVEAuthStorage, structure_id_list: typing.List[int], solar_system_id: int) -> \
+#         typing.List[int]:
+#     filtered_list = list()
+#     base_url = "https://esi.evetech.net/latest/universe/structures/{}"
+#     for structure_id in structure_id_list:
+#         token = auth.get_access_token()
+#         structure_data = requests.get(url=base_url.format(structure_id), params={"token": token}).json()
+#         if structure_data["solar_system_id"] == solar_system_id:
+#             filtered_list.append(structure_id)
+#     return filtered_list
 
 
 def human_format(number: int, dec: int = 2, small_dec: int = 2):

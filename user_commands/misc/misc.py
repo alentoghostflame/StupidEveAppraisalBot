@@ -12,3 +12,7 @@ class MiscCog(commands.Cog, name="Misc"):
     @commands.command(name="ping", brief="Quick command to test the bot.")
     async def ping(self, context):
         await context.send("Pong!")
+
+    @commands.command(name="github", brief="Quick command to link the github URL.")
+    async def github(self, context):
+        await context.send("<https://github.com/alentoghostflame/StupidEveAppraisalBot>")
