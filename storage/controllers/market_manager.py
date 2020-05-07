@@ -22,6 +22,7 @@ class MarketManager:
 def get_item_orders(self, region_id: int, item_id: int, solar_system_id: int = None):
     raw_market_data = fetch_market_data(region_id, item_id)
     market_data = sort_market_data(raw_market_data, solar_system_id)
+    return market_data
 
 
 def fetch_market_data(region_id: int, item_id: int) -> typing.List[dict]:

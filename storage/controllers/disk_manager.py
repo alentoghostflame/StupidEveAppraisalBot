@@ -11,17 +11,18 @@ logger = logging.getLogger("Main")
 class DiskManager:
     def __init__(self):
         self.config: ConfigData = ConfigData()
-        self.cache: CacheManager = CacheManager()
+        # self.cache: CacheManager = CacheManager()
         self.eve_auth: EVEAuthStorage = EVEAuthStorage(self.config)
 
     def load(self):
         self.config.load()
-        self.cache.load()
+        # self.cache.load()
         self.eve_auth.load()
         self.create_data_folders()
 
     def save(self):
-        self.cache.save()
+        # self.cache.save()
+        pass
 
     def create_data_folders(self):
         base_folder = self.config.data_folder
