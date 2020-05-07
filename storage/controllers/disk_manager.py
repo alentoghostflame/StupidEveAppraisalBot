@@ -20,6 +20,9 @@ class DiskManager:
         self.eve_auth.load()
         self.create_data_folders()
 
+    def save(self):
+        self.cache.save()
+
     def create_data_folders(self):
         base_folder = self.config.data_folder
         Path(base_folder).mkdir(exist_ok=True)

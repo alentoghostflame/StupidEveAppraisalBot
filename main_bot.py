@@ -20,7 +20,7 @@ class StupidEveAppraisalBot:
         self.storage.load()
 
     def save(self):
-        pass
+        self.storage.save()
 
     def run(self):
         passed_checks: bool = True
