@@ -1,5 +1,5 @@
-from storage.formats import ConfigData, EVEAuthStorage
-from storage.controllers import CacheManager, BaseCache
+from storage_module.formats import ConfigData, EVEAuthStorage
+from storage_module.controllers import CacheManager, BaseCache
 import logging
 # import typing
 from pathlib import Path

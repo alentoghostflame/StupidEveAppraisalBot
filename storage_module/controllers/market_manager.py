@@ -1,7 +1,6 @@
-# from storage. import ConfigData, CacheManager, BaseCache, EVEAuthStorage
-from storage.controllers.cache_manager import CacheManager, BaseCache
-from storage.formats.eve_auth_storage import EVEAuthStorage
-from storage.formats.config_storage import ConfigData
+from storage_module.controllers.cache_manager import CacheManager, BaseCache
+from storage_module.formats.eve_auth_storage import EVEAuthStorage
+from storage_module.formats.config_storage import ConfigData
 import requests
 import logging
 import typing
@@ -18,11 +17,10 @@ class MarketManager:
         self.cache_manager.register_cache(self.cache, "market_cache")
         self.auth: EVEAuthStorage = auth
 
-
-def get_item_orders(self, region_id: int, item_id: int, solar_system_id: int = None):
-    raw_market_data = fetch_market_data(region_id, item_id)
-    market_data = sort_market_data(raw_market_data, solar_system_id)
-    return market_data
+    def get_item_orders(self, region_id: int, item_id: int, solar_system_id: int = None) -> \
+            typing.Tuple[typing.List[dict], typing.List[dict]]:
+        raw_market_data = fetch_market_data(region_id, item_id)
+        return sort_market_data(raw_market_data, solar_system_id)
 
 
 def fetch_market_data(region_id: int, item_id: int) -> typing.List[dict]:
@@ -39,17 +37,17 @@ def sort_market_data(raw_market_data: typing.List[dict], system_id: int = None):
     else:
         trimmed_list = raw_market_data
 
-    sell_orders = list()
     buy_orders = list()
+    sell_orders = list()
     for order_dict in trimmed_list:
         if order_dict["is_buy_order"]:
             buy_orders.append(order_dict)
         else:
             sell_orders.append(order_dict)
 
-    sell_orders = sorted(sell_orders, key=lambda k: k["price"])
     buy_orders = sorted(buy_orders, key=lambda k: k["price"], reverse=True)
-    return sell_orders, buy_orders
+    sell_orders = sorted(sell_orders, key=lambda k: k["price"])
+    return buy_orders, sell_orders
 
 
 class MarketCache(BaseCache):

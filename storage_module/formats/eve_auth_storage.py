@@ -1,4 +1,4 @@
-from storage.formats.config_storage import ConfigData
+from storage_module.formats.config_storage import ConfigData
 from pathlib import Path
 import urllib.parse
 import requests

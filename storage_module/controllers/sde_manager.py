@@ -1,6 +1,5 @@
-from storage.formats import UniverseStorage, ConfigData, ItemStorage
+from storage_module.formats import UniverseStorage, ConfigData, ItemStorage
 import logging
-# import yaml
 import os
 
 

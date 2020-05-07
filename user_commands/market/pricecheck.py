@@ -1,8 +1,8 @@
 from user_commands.market import text
 from discord.ext import commands
-from storage import SDEManager, ItemData, EVEAuthStorage
-import requests
-import storage
+from storage_module import StorageManager, RegionData, ConstellationData, SolarSystemData, ItemData
+# import requests
+# import storage_module
 import logging
 import discord
 import typing
@@ -11,14 +11,15 @@ import typing
 logger = logging.getLogger("Main")
 
 
-async def pricecheck(sde: SDEManager, auth: EVEAuthStorage, context: commands.context, arg1=None, *args):
+# async def pricecheck(sde: SDEManager, auth: EVEAuthStorage, context: commands.context, arg1=None, *args):
+async def pricecheck(storage: StorageManager, context: commands.context, arg1=None, *args):
     location_data = None
     item_data = None
 
     if arg1:
-        location_data = sde.universe.eve.get_any(arg1)
+        location_data = storage.sde.universe.eve.get_any(arg1)
     if args:
-        item_data = sde.items.get_item(" ".join(args))
+        item_data = storage.sde.items.get_item(" ".join(args))
 
     if not arg1:
         await context.send(text.PRICECHECK_HELP)
@@ -29,25 +30,29 @@ async def pricecheck(sde: SDEManager, auth: EVEAuthStorage, context: commands.co
     elif not item_data:
         await context.send("Item not found!")
     else:
-        if isinstance(location_data, storage.RegionData):
-            raw_market_data = fetch_market_data(location_data.id, item_data.id)
-            sell_orders, buy_orders = sort_market_data(raw_market_data)
-            embed = create_embed(sell_orders, buy_orders, item_data, location_data)
+        if isinstance(location_data, RegionData):
+            # raw_market_data = fetch_market_data(location_data.id, item_data.id)
+            # sell_orders, buy_orders = sort_market_data(raw_market_data)
+            # embed = create_embed(sell_orders, buy_orders, item_data, location_data)
+            buy_orders, sell_orders = storage.market.get_item_orders(location_data.id, item_data.id)
+            embed = create_embed(buy_orders, sell_orders, item_data, location_data)
             await context.send(embed=embed)
-        elif isinstance(location_data, storage.ConstellationData):
+        elif isinstance(location_data, ConstellationData):
             await context.send(text.PRICECHECK_CONSTELLATIONS)
-        elif isinstance(location_data, storage.SolarSystemData):
-            region_data = sde.universe.eve.get_region(location_data.region)
-            raw_market_data = fetch_market_data(region_data.id, item_data.id)
-            sell_orders, buy_orders = sort_market_data(raw_market_data, location_data.id)
-            embed = create_embed(sell_orders, buy_orders, item_data, location_data)
+        elif isinstance(location_data, SolarSystemData):
+            region_data = storage.sde.universe.eve.get_region(location_data.region)
+            # raw_market_data = fetch_market_data(region_data.id, item_data.id)
+            # sell_orders, buy_orders = sort_market_data(raw_market_data, location_data.id)
+            # embed = create_embed(sell_orders, buy_orders, item_data, location_data)
             # fetch_structure_market_data(auth, location_data.id, item_data.id)
+            buy_orders, sell_orders = storage.market.get_item_orders(region_data.id, item_data.id, location_data.id)
+            embed = create_embed(buy_orders, sell_orders, item_data, location_data)
             await context.send(embed=embed)
         else:
             await context.send("PRICECHECK.PY/PRICECHECK, DM TO ALENTO/SOMBRA \"{}\"".format(type(location_data)))
 
 
-def create_embed(sell_orders: typing.List[dict], buy_orders: typing.List[dict], item_data: ItemData, location_data):
+def create_embed(buy_orders: typing.List[dict], sell_orders: typing.List[dict], item_data: ItemData, location_data):
     embed = discord.Embed(title="{}: {}".format(location_data.name, item_data.name), color=0xffff00)
 
     seller_text = ""
@@ -80,31 +85,31 @@ def create_embed(sell_orders: typing.List[dict], buy_orders: typing.List[dict], 
     return embed
 
 
-def sort_market_data(raw_market_data: typing.List[dict], system_id: int = None):
-    trimmed_list = list()
-    if system_id:
-        for market_order in raw_market_data:
-            if market_order["system_id"] == system_id:
-                trimmed_list.append(market_order)
-    else:
-        trimmed_list = raw_market_data
-
-    sell_orders = list()
-    buy_orders = list()
-    for order_dict in trimmed_list:
-        if order_dict["is_buy_order"]:
-            buy_orders.append(order_dict)
-        else:
-            sell_orders.append(order_dict)
-
-    sell_orders = sorted(sell_orders, key=lambda k: k["price"])
-    buy_orders = sorted(buy_orders, key=lambda k: k["price"], reverse=True)
-    return sell_orders, buy_orders
-
-
-def fetch_market_data(region_id: int, item_id: int) -> typing.List[dict]:
-    base_url = "https://esi.evetech.net/latest/markets/{}/orders"
-    return requests.get(url=base_url.format(region_id), params={"type_id": item_id}).json()
+# def sort_market_data(raw_market_data: typing.List[dict], system_id: int = None):
+#     trimmed_list = list()
+#     if system_id:
+#         for market_order in raw_market_data:
+#             if market_order["system_id"] == system_id:
+#                 trimmed_list.append(market_order)
+#     else:
+#         trimmed_list = raw_market_data
+#
+#     sell_orders = list()
+#     buy_orders = list()
+#     for order_dict in trimmed_list:
+#         if order_dict["is_buy_order"]:
+#             buy_orders.append(order_dict)
+#         else:
+#             sell_orders.append(order_dict)
+#
+#     sell_orders = sorted(sell_orders, key=lambda k: k["price"])
+#     buy_orders = sorted(buy_orders, key=lambda k: k["price"], reverse=True)
+#     return sell_orders, buy_orders
+#
+#
+# def fetch_market_data(region_id: int, item_id: int) -> typing.List[dict]:
+#     base_url = "https://esi.evetech.net/latest/markets/{}/orders"
+#     return requests.get(url=base_url.format(region_id), params={"type_id": item_id}).json()
 
 
 # def fetch_structure_market_data(auth: EVEAuthStorage, solar_system_id: int, item_id: int):
