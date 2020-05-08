@@ -14,21 +14,25 @@ class AlreadyRegisteredName(Exception):
 
 
 class BaseCache:
-    def __init__(self, config: ConfigData, file_name: str):
-        self._config = config
-        self._file_name = file_name
+    def __init__(self, config: ConfigData, file_name: str, save_on_exit: bool = True):
+        self._config: ConfigData = config
+        self._file_name: str = file_name
+        self._save_on_exit: bool = save_on_exit
         self._loaded: bool = False
 
     def loaded(self) -> bool:
         return self._loaded
 
-    def save(self):
-        logger.debug("Saving cache {}".format(self._file_name))
-        cache_location = "{}/cache/{}".format(self._config.data_folder, self._file_name)
-        file = open(cache_location, "w")
-        yaml.safe_dump(self.to_dict(), file)
-        file.close()
-        logger.debug("Saved {}".format(self._file_name))
+    def save(self, exiting: bool = False):
+        if not exiting or (exiting and self._save_on_exit):
+            logger.debug("Saving cache {}".format(self._file_name))
+            cache_location = "{}/cache/{}".format(self._config.data_folder, self._file_name)
+            file = open(cache_location, "w")
+            yaml.safe_dump(self.to_dict(), file)
+            file.close()
+            logger.debug("Saved {}".format(self._file_name))
+        else:
+            logger.debug("Cache {} disabled save on exit, ignoring.".format(self._file_name))
 
     def load(self):
         logger.debug("Loading cache {}".format(self._file_name))
@@ -41,7 +45,8 @@ class BaseCache:
                 self.__dict__[key] = state[key]
             self._loaded = True
             logger.debug("Loaded {}".format(self._file_name))
-        logger.debug("{} not on disk yet.".format(self._file_name))
+        else:
+            logger.debug("{} not on disk yet.".format(self._file_name))
 
     def to_dict(self) -> dict:
         output_dict = dict()
@@ -68,7 +73,7 @@ class CacheManager:
     def save(self):
         logger.info("Saving caches...")
         for cache in self._caches:
-            self._caches[cache].save()
+            self._caches[cache].save(exiting=True)
         logger.info("Caches saved.")
 
     def load(self):
