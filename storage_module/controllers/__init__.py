@@ -2,3 +2,4 @@ from storage_module.controllers.cache_manager import CacheManager, BaseCache
 from storage_module.controllers.storage_manager import StorageManager
 from storage_module.controllers.sde_manager import SDEManager
 from storage_module.controllers.market_manager import MarketManager
+from storage_module.controllers.eve_auth_manager import EVEAuthManager

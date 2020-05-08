@@ -12,7 +12,7 @@ import yaml
 logger = logging.getLogger("Main")
 
 
-class EVEAuthStorage:
+class EVEAuthManager:
     def __init__(self, config: ConfigData):
         self.config = config
         self.refresh_token: str = ""

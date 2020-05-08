@@ -1,5 +1,5 @@
 from storage_module.controllers.cache_manager import CacheManager, BaseCache
-from storage_module.formats.eve_auth_storage import EVEAuthStorage
+from storage_module.controllers.eve_auth_manager import EVEAuthManager
 from storage_module.formats.config_storage import ConfigData
 import requests
 import logging
@@ -10,12 +10,12 @@ logger = logging.getLogger("Main")
 
 
 class MarketManager:
-    def __init__(self, config: ConfigData, cache: CacheManager, auth: EVEAuthStorage):
+    def __init__(self, config: ConfigData, cache: CacheManager, auth: EVEAuthManager):
         self.config: ConfigData = config
         self.cache_manager: CacheManager = cache
         self.cache = MarketCache(self.config)
         self.cache_manager.register_cache(self.cache, "market_cache")
-        self.auth: EVEAuthStorage = auth
+        self.auth: EVEAuthManager = auth
 
     def get_item_orders(self, region_id: int, item_id: int, solar_system_id: int = None) -> \
             typing.Tuple[typing.List[dict], typing.List[dict]]:
