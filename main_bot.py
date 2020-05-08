@@ -25,7 +25,7 @@ class StupidEveAppraisalBot:
 
     def run(self):
         passed_checks: bool = True
-        if not self.storage.disk.config.discord_token:
+        if not self.storage.config.discord_token:
             logger.critical("Token missing from config, can't start bot.")
             passed_checks = False
         if not self.storage.sde.loaded:
@@ -37,4 +37,4 @@ class StupidEveAppraisalBot:
 
         if passed_checks:
             logger.info("Starting bot loop.")
-            self.bot.run(self.storage.disk.config.discord_token)
+            self.bot.run(self.storage.config.discord_token)

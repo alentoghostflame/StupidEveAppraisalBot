@@ -88,7 +88,3 @@ class ItemStorage:
 
     def get_item(self, item_name: str) -> typing.Optional[ItemData]:
         return self.items.get(item_name.lower(), None)
-
-
-
-

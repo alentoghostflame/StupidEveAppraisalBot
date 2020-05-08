@@ -1,3 +1,3 @@
 from storage_module.formats import ConfigData, UniverseStorage, ItemStorage, ItemData, RegionData, ConstellationData, \
     SolarSystemData, EVEAuthStorage
-from storage_module.controllers import DiskManager, RamManager, SDEManager, StorageManager, BaseCache, CacheManager, MarketManager
+from storage_module.controllers import SDEManager, StorageManager, BaseCache, CacheManager, MarketManager

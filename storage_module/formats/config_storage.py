@@ -1,5 +1,5 @@
 import logging
-import typing
+# import typing
 import yaml
 import os
 
@@ -56,4 +56,3 @@ class ConfigData:
         temp_dict = yaml.safe_load(file)
         self.from_dict(temp_dict)
         logger.info("Config loaded.")
-
