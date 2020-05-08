@@ -42,7 +42,8 @@ class BaseCache:
             state = yaml.safe_load(file)
             file.close()
             for key in state:
-                self.__dict__[key] = state[key]
+                if key in self.__dict__:
+                    self.__dict__[key] = state[key]
             self._loaded = True
             logger.debug("Loaded {}".format(self._file_name))
         else:
