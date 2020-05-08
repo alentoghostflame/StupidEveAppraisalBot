@@ -14,7 +14,7 @@ class StorageManager:
     def __init__(self):
         self.config: ConfigData = ConfigData()
         self.cache: CacheManager = CacheManager()
-        self.eve_auth: EVEAuthManager = EVEAuthManager(self.config)
+        self.eve_auth: EVEAuthManager = EVEAuthManager(self.config, self.cache)
         self.sde: SDEManager = SDEManager(self.config)
         self.market: MarketManager = MarketManager(self.config, self.cache, self.eve_auth)
 
@@ -22,6 +22,9 @@ class StorageManager:
         self.config.load()
         self.cache.load()
         self.sde.load()
+        self.eve_auth.load()
+        self.market.refresh_structure_info()
+        self.market.refresh_structure_market_orders()
 
     def save(self):
         self.cache.save()

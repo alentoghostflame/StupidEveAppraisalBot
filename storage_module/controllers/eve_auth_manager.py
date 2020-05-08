@@ -1,11 +1,12 @@
 from storage_module.formats.config_storage import ConfigData
-from pathlib import Path
+from storage_module.controllers.cache_manager import CacheManager, BaseCache
+# from pathlib import Path
 import urllib.parse
 import requests
 import logging
 import typing
 import base64
-import yaml
+# import yaml
 # import os
 
 
@@ -13,38 +14,20 @@ logger = logging.getLogger("Main")
 
 
 class EVEAuthManager:
-    def __init__(self, config: ConfigData):
+    def __init__(self, config: ConfigData, cache_manager: CacheManager):
         self.config = config
-        self.refresh_token: str = ""
-
-    def from_dict(self, state: dict):
-        self.refresh_token = state.get("refresh_token", "")
-
-    def to_dict(self) -> dict:
-        return {"refresh_token": self.refresh_token}
+        self.cache: EVEAuthCache = EVEAuthCache(self.config)
+        cache_manager.register_cache(self.cache, "eve_auth")
+        # self.refresh_token: str = ""
 
     def load(self):
-        if Path("{}/cache/eve_auth.yaml".format(self.config.data_folder)).is_file():
-            logger.debug("Starting load from cache.")
-            file = open("{}/cache/eve_auth.yaml".format(self.config.data_folder), "r")
-            raw_data = yaml.safe_load(file)
-            file.close()
-            self.from_dict(raw_data)
-            logger.debug("Finished load from cache.")
-        else:
+        if not self.cache.loaded() or not self.cache.refresh_token:
             self.create_refresh_token_guide()
-
-    def save(self):
-        logger.debug("Starting save to cache.")
-        file = open("{}/cache/eve_auth.yaml".format(self.config.data_folder), "w")
-        yaml.safe_dump(self.to_dict(), file)
-        file.close()
-        logger.debug("Finished save to cache.")
 
     def create_refresh_token_guide(self):
         if not self.config.eve_app_auth_code and self.create_eve_auth_url_checks():
             self.create_eve_auth_url()
-        elif self.config.eve_app_auth_code and not self.refresh_token:
+        elif self.config.eve_app_auth_code and not self.cache.refresh_token:
             self.create_refresh_token()
 
     def create_eve_auth_url_checks(self) -> bool:
@@ -79,7 +62,7 @@ class EVEAuthManager:
         auth_url = base_url.format(redirect_uri, client_id, scope, state)
         logger.info("Authorization URL: {}\nGo to that website, and authorize your account. You will get redirected"
                     " to the callback_url (which may result in a 404), but what you want is the access code in the"
-                    " URL. Look for \"?code=<code here>\" and paste that code in eve_app_access_code in the config."
+                    " URL. Look for \"?code=<code here>\" and paste that code in eve_auth_app_code in the config."
                     "".format(auth_url))
 
     def create_refresh_token(self):
@@ -88,9 +71,9 @@ class EVEAuthManager:
             logger.error("Failed to get access token: {}".format(response_dict.get("error_description",
                                                                                    "No description found??")))
         elif response_dict.get("refresh_token", ""):
-            self.refresh_token = response_dict["refresh_token"]
+            self.cache.refresh_token = response_dict["refresh_token"]
             logger.info("Received refresh token.")
-            self.save()
+            self.cache.save()
         else:
             logger.critical("Unexpected response given:\n{}".format(response_dict))
 
@@ -104,13 +87,19 @@ class EVEAuthManager:
         return response.json()
 
     def get_access_token(self) -> typing.Optional[str]:
-        if self.refresh_token:
+        if self.cache.refresh_token:
             auth_key = base64.b64encode(bytes("{}:{}".format(self.config.eve_app_client_id,
                                                              self.config.eve_app_secret_key), "utf-8")).decode("utf-8")
             headers = {"Authorization": "Basic {}".format(auth_key),
                        "Content-Type": "application/x-www-form-urlencoded", "Host": "login.eveonline.com"}
-            data_bits = {"grant_type": "refresh_token", "refresh_token": self.refresh_token}
+            data_bits = {"grant_type": "refresh_token", "refresh_token": self.cache.refresh_token}
             response = requests.post(url="https://login.eveonline.com/oauth/token", headers=headers, data=data_bits)
             return response.json().get("access_token", None)
         else:
             return None
+
+
+class EVEAuthCache(BaseCache):
+    def __init__(self, config: ConfigData):
+        super().__init__(config, "eve_auth.yaml")
+        self.refresh_token = ""

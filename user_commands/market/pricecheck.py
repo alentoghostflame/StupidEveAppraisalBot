@@ -31,9 +31,6 @@ async def pricecheck(storage: StorageManager, context: commands.context, arg1=No
         await context.send("Item not found!")
     else:
         if isinstance(location_data, RegionData):
-            # raw_market_data = fetch_market_data(location_data.id, item_data.id)
-            # sell_orders, buy_orders = sort_market_data(raw_market_data)
-            # embed = create_embed(sell_orders, buy_orders, item_data, location_data)
             buy_orders, sell_orders = storage.market.get_item_orders(location_data.id, item_data.id)
             embed = create_embed(buy_orders, sell_orders, item_data, location_data)
             await context.send(embed=embed)
@@ -41,10 +38,6 @@ async def pricecheck(storage: StorageManager, context: commands.context, arg1=No
             await context.send(text.PRICECHECK_CONSTELLATIONS)
         elif isinstance(location_data, SolarSystemData):
             region_data = storage.sde.universe.eve.get_region(location_data.region)
-            # raw_market_data = fetch_market_data(region_data.id, item_data.id)
-            # sell_orders, buy_orders = sort_market_data(raw_market_data, location_data.id)
-            # embed = create_embed(sell_orders, buy_orders, item_data, location_data)
-            # fetch_structure_market_data(auth, location_data.id, item_data.id)
             buy_orders, sell_orders = storage.market.get_item_orders(region_data.id, item_data.id, location_data.id)
             embed = create_embed(buy_orders, sell_orders, item_data, location_data)
             await context.send(embed=embed)
