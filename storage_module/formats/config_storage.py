@@ -22,6 +22,8 @@ class ConfigData:
 
         self.eve_app_auth_code: str = ""
 
+        self.tracked_structure_markets: list = []
+
     def from_dict(self, state: dict):
         self.discord_token = state.get("discord_token", "")
 
@@ -35,6 +37,8 @@ class ConfigData:
         self.eve_app_unique_state = state.get("eve_app_unique_state", "notauniquestate")
 
         self.eve_app_auth_code = state.get("eve_app_auth_code", "")
+
+        self.tracked_structure_markets = state.get("tracked_structure_markets", list())
 
     def to_dict(self):
         return self.__dict__

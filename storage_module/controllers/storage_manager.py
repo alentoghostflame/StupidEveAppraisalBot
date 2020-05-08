@@ -16,7 +16,7 @@ class StorageManager:
         self.cache: CacheManager = CacheManager()
         self.eve_auth: EVEAuthManager = EVEAuthManager(self.config, self.cache)
         self.sde: SDEManager = SDEManager(self.config)
-        self.market: MarketManager = MarketManager(self.config, self.cache, self.eve_auth)
+        self.market: MarketManager = MarketManager(self.config, self.eve_auth)
 
     def load(self):
         self.config.load()
