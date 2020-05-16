@@ -8,7 +8,7 @@ import logging
 logger = logging.getLogger("main_bot")
 
 
-class EVEMarketCog(commands.Cog, name="Market"):
+class EVEMarketCog(commands.Cog, name="EVEMarket"):
     def __init__(self, storage: StorageManager, universe: UniverseStorage, items: ItemStorage, market: MarketManager):
         self.storage: StorageManager = storage
         self.universe = universe
