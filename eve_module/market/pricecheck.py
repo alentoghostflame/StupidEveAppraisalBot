@@ -24,11 +24,11 @@ async def pricecheck(storage: StorageManager, universe: UniverseStorage, items: 
     if not arg1:
         await context.send(text.PRICECHECK_HELP)
     elif not location_data:
-        await context.send("Not found in universe.")
+        await context.send("Location not found in universe.")
     elif not args:
         await context.send("{} : {}".format(location_data.id, location_data.name))
     elif not item_data:
-        await context.send("Item not found!")
+        await context.send("Item not found in database.")
     else:
         if isinstance(location_data, RegionData):
             buy_orders, sell_orders = market.get_item_orders(location_data.id, item_data.id)
