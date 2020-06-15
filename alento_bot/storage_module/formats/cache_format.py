@@ -1,5 +1,6 @@
 from alento_bot.storage_module.formats.config_format import ConfigData
 from pathlib import Path
+import warnings
 import logging
 import yaml
 
@@ -8,14 +9,27 @@ logger = logging.getLogger("main_bot")
 
 
 class BaseCache:
-    def __init__(self, config: ConfigData, data_name: str, save_on_exit: bool = True):
+    # def __init__(self, config: ConfigData, data_name: str, save_on_exit: bool = True):
+    #     self._config: ConfigData = config
+    #     self._data_name: str = data_name
+    #     self._save_on_exit: bool = save_on_exit
+    #     self._loaded: bool = False
+    def __init__(self, config: ConfigData):
         self._config: ConfigData = config
-        self._data_name: str = data_name
-        self._save_on_exit: bool = save_on_exit
-        self._loaded: bool = False
+        self._from_disk: bool = False
+
+    @classmethod
+    def __init_subclass__(cls, name: str = "default_cache_name", save_on_exit: bool = True, **kwargs):
+        super().__init_subclass__(**kwargs)
+        cls._data_name: str = name
+        cls._save_on_exit: bool = save_on_exit
 
     def loaded(self) -> bool:
-        return self._loaded
+        warnings.warn("Deprecated", DeprecationWarning)
+        return self.from_disk()
+
+    def from_disk(self) -> bool:
+        return self._from_disk
 
     def save(self, exiting: bool = False):
         if not exiting or (exiting and self._save_on_exit):
@@ -43,7 +57,7 @@ class BaseCache:
             state = yaml.safe_load(file)
             file.close()
             self.from_dict(state)
-            self._loaded = True
+            self._from_disk = True
             # logger.debug("Loaded {}".format(self._data_name))
             logger.debug("Loaded.")
         else:
@@ -65,9 +79,10 @@ class BaseCache:
 
 def cache_transformer(name: str = "default_cache_name", save_on_exit: bool = True):
     def decorator(cls):
-        class CacheWrapperClass(cls, BaseCache):
+        class CacheWrapperClass(cls, BaseCache, name=name, save_on_exit=save_on_exit):
             def __init__(self, config: ConfigData, **kwargs):
-                BaseCache.__init__(self, config, name, save_on_exit=save_on_exit)
+                # BaseCache.__init__(self, config, name, save_on_exit=save_on_exit)
+                BaseCache.__init__(self, config)
                 cls.__init__(self, **kwargs)
         return CacheWrapperClass
     return decorator
