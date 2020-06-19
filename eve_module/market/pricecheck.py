@@ -1,4 +1,4 @@
-from alento_bot import StorageManager
+# from alento_bot import StorageManager
 from eve_module.storage import UniverseStorage, ItemStorage, RegionData, ConstellationData, SolarSystemData, ItemData, \
     MarketManager
 from eve_module.market import text
@@ -11,22 +11,33 @@ import typing
 logger = logging.getLogger("main_bot")
 
 
-async def pricecheck(storage: StorageManager, universe: UniverseStorage, items: ItemStorage, market: MarketManager,
-                     context: commands.Context, arg1=None, *args):
+async def pricecheck(universe: UniverseStorage, items: ItemStorage, market: MarketManager, context: commands.Context,
+                     *args):
+    # location_data = None
+    # item_data = None
     location_data = None
+    args_in_name = 0
     item_data = None
 
-    if arg1:
-        location_data = universe.get_any(arg1)
+    # location_data = None
+    # name_arg_counter = 1
+    # for i in range(len(args)):
+    #     location_data = universe.get_any(" ".join(args[:i]))
+    #     name_arg_counter += 1
     if args:
-        item_data = items.get_item(" ".join(args))
+        location_data, args_in_name = get_location_data_from_list(universe, args)
+        if location_data and args[args_in_name:]:
+            # logger.debug(f"LOCATION {location_data}, \"{args[args_in_name:]}\", {args}")
+            item_data = items.get_item(" ".join(args[args_in_name:]))
 
-    if not arg1:
+    # logger.debug(f"ITEM {item_data}, ARG NAME COUNT {args_in_name}, ARGS {args}")
+
+    if not args:
         await context.send(text.PRICECHECK_HELP)
     elif not location_data:
         await context.send("Location not found in universe.")
-    elif not args:
-        await context.send("{} : {}".format(location_data.id, location_data.name))
+    elif not args[args_in_name:]:
+        await context.send(f"{location_data.id} : {location_data.name}")
     elif not item_data:
         await context.send("Item not found in database.")
     else:
@@ -37,12 +48,54 @@ async def pricecheck(storage: StorageManager, universe: UniverseStorage, items: 
         elif isinstance(location_data, ConstellationData):
             await context.send(text.PRICECHECK_CONSTELLATIONS)
         elif isinstance(location_data, SolarSystemData):
-            region_data = universe.get_region(location_data.region)
+            # region_data = universe.get_region(location_data.region)
+            region_data = universe.get_region(location_data.region, is_id=True)
             buy_orders, sell_orders = market.get_item_orders(region_data.id, item_data.id, location_data.id)
             embed = create_embed(buy_orders, sell_orders, item_data, location_data)
             await context.send(embed=embed)
         else:
             await context.send("PRICECHECK.PY/PRICECHECK, DM TO ALENTO/SOMBRA \"{}\"".format(type(location_data)))
+
+    # if arg1:
+    #     location_data = universe.get_any(arg1)
+    # if args:
+    #     item_data = items.get_item(" ".join(args))
+    #
+    # if not arg1:
+    #     await context.send(text.PRICECHECK_HELP)
+    # elif not location_data:
+    #     await context.send("Location not found in universe.")
+    # elif not args:
+    #     await context.send("{} : {}".format(location_data.id, location_data.name))
+    # elif not item_data:
+    #     await context.send("Item not found in database.")
+    # else:
+    #     if isinstance(location_data, RegionData):
+    #         buy_orders, sell_orders = market.get_item_orders(location_data.id, item_data.id)
+    #         embed = create_embed(buy_orders, sell_orders, item_data, location_data)
+    #         await context.send(embed=embed)
+    #     elif isinstance(location_data, ConstellationData):
+    #         await context.send(text.PRICECHECK_CONSTELLATIONS)
+    #     elif isinstance(location_data, SolarSystemData):
+    #         # region_data = universe.get_region(location_data.region)
+    #         region_data = universe.get_region(location_data.region, is_id=True)
+    #         buy_orders, sell_orders = market.get_item_orders(region_data.id, item_data.id, location_data.id)
+    #         embed = create_embed(buy_orders, sell_orders, item_data, location_data)
+    #         await context.send(embed=embed)
+    #     else:
+    #         await context.send("PRICECHECK.PY/PRICECHECK, DM TO ALENTO/SOMBRA \"{}\"".format(type(location_data)))
+
+
+def get_location_data_from_list(universe: UniverseStorage, string_list: typing.Tuple[str, ...]):
+    name_arg_counter = 0
+    for i in range(len(string_list)):
+        name_arg_counter += 1
+        logger.debug(f"Trying {' '.join(string_list[:i + 1])}, count {name_arg_counter}")
+        location_data = universe.get_any(" ".join(string_list[:i + 1]))
+        if location_data:
+            logger.debug(f"Found {' '.join(string_list[:i + 1])}")
+            return location_data, name_arg_counter
+    return None, 0
 
 
 def create_embed(buy_orders: typing.List[dict], sell_orders: typing.List[dict], item_data: ItemData, location_data):

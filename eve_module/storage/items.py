@@ -54,7 +54,7 @@ class ItemStorage:
             self.items[item_name.lower()] = ItemData(state=self.cache.items[item_name])
 
     def load_from_sde(self):
-        logger.debug("Loading from SDE. (May take some time)")
+        logger.debug("Loading items from SDE. (May take some time)")
         item_file_location = f"{self.eve_config.sde_location}/fsd/typeIDs.yaml"
         item_file = open(item_file_location, "r")
         raw_data = yaml.safe_load(item_file)
@@ -63,7 +63,7 @@ class ItemStorage:
         for item_id in raw_data:
             item_data = ItemData(item_id, raw_data[item_id], True)
             self.items[item_data.name.lower()] = item_data
-        logger.debug("Finished load from SDE.")
+        logger.debug("Finished loading items from SDE.")
 
     def save_to_cache(self):
         for item_name in self.items:

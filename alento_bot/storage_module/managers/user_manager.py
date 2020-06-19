@@ -1,4 +1,4 @@
-from alento_bot.storage_module.formats import ConfigData, UserClass
+from alento_bot.storage_module.formats import ConfigData, BaseUserCache
 from pathlib import Path
 import logging
 import typing
@@ -18,11 +18,11 @@ class UserNameNotRegistered(Exception):
 class UserManager:
     def __init__(self, config: ConfigData):
         self.config: ConfigData = config
-        self._users: typing.Dict[int, typing.Dict[str, UserClass]] = dict()
+        self._users: typing.Dict[int, typing.Dict[str, BaseUserCache]] = dict()
         self._user_data_names: typing.Dict[str, type] = dict()
 
     def register_data_name(self, data_name: str, user_object: type):
-        if not issubclass(user_object, UserClass):
+        if not issubclass(user_object, BaseUserCache):
             raise TypeError("Attempted to register a class that doesn't subclass UserClass.")
         elif data_name in self._user_data_names:
             raise AlreadyRegisteredUserName(f"\"{data_name}\" already registered.")

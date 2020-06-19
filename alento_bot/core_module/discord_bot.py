@@ -55,6 +55,10 @@ class DiscordBot:
             logger.critical(text.MISSING_DISCORD_TOKEN)
             passed_checks = False
 
+        if self.storage.config.discord_command_prefix != ";":
+            self.bot.command_prefix = self.storage.config.discord_command_prefix
+            logger.debug(f"Command prefix \"{self.bot.command_prefix}\" set!")
+
         if passed_checks:
             logger.info("Beginning bot loop.")
             self.bot.run(self.storage.config.discord_bot_token)

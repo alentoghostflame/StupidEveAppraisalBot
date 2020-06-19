@@ -1,4 +1,4 @@
-from alento_bot.storage_module.formats import ConfigData, GuildClass
+from alento_bot.storage_module.formats import ConfigData, BaseGuildCache
 from pathlib import Path
 import logging
 import typing
@@ -19,11 +19,11 @@ class GuildNameNotRegistered(Exception):
 class GuildManager:
     def __init__(self, config: ConfigData):
         self.config: ConfigData = config
-        self._guilds: typing.Dict[int, typing.Dict[str, GuildClass]] = dict()
+        self._guilds: typing.Dict[int, typing.Dict[str, BaseGuildCache]] = dict()
         self._guild_data_names: typing.Dict[str, type] = dict()
 
     def register_data_name(self, data_name: str, guild_object: type):
-        if not issubclass(guild_object, GuildClass):
+        if not issubclass(guild_object, BaseGuildCache):
             raise TypeError("Attempted to register a class that doesn't subclass GuildClass.")
         elif data_name in self._guild_data_names:
             raise AlreadyRegisteredGuildName(f"\"{data_name}\" already registered.")

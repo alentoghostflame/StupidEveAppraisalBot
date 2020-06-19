@@ -1,5 +1,6 @@
 from alento_bot.storage_module.formats.config_format import ConfigData
 from pathlib import Path
+import warnings
 import logging
 import yaml
 
@@ -7,15 +8,23 @@ import yaml
 logger = logging.getLogger("main_bot")
 
 
-class UserClass:
-    def __init__(self, config: ConfigData, data_name: str, user_id: int):
+class BaseUserCache:
+    def __init__(self, config: ConfigData, user_id: int):
         self._config: ConfigData = config
-        self._data_name: str = data_name
         self._user_id: int = user_id
-        self._loaded: bool = False
+        self._from_disk: bool = False
+
+    @classmethod
+    def __init_subclass__(cls, name: str = "default_cache_name", **kwargs):
+        super().__init_subclass__(**kwargs)
+        cls._data_name: str = name
 
     def loaded(self) -> bool:
-        return self._loaded
+        warnings.warn("Deprecated", DeprecationWarning)
+        return self.from_disk()
+
+    def from_disk(self) -> bool:
+        return self._from_disk
 
     def save(self):
         user_folder = f"{self._config.data_folder_path}/users/{self._user_id}"
@@ -34,7 +43,7 @@ class UserClass:
             state = yaml.safe_load(file)
             file.close()
             self.from_dict(state)
-            self._loaded = True
+            self._from_disk = True
             logger.debug(f"Loaded.")
         else:
             logger.debug(f"\"{user_file}\" not on disk yet.")
@@ -54,9 +63,10 @@ class UserClass:
 
 def user_data_transformer(name: str = "default_user_data_name"):
     def decorator(cls):
-        class UserWrapperClass(cls, UserClass):
+        class UserWrapperClass(cls, BaseUserCache, name=name):
             def __init__(self, config: ConfigData, user_id: int, **kwargs):
-                UserClass.__init__(self, config, name, user_id)
+                # UserClass.__init__(self, config, name, user_id)
+                BaseUserCache.__init__(self, config, user_id)
                 cls.__init__(self, **kwargs)
         return UserWrapperClass
     return decorator

@@ -16,8 +16,8 @@ class EVEMarketCog(commands.Cog, name="EVEMarket"):
         self.market = market
 
     @commands.command(name="pricecheck", brief=text.PRICECHECK_BRIEF, aliases=["pc", ], usage=text.PRICECHECK_USAGE)
-    async def pricecheck_command(self, context: commands.Context, arg1=None, *args):
-        await pricecheck.pricecheck(self.storage, self.universe, self.items, self.market, context, arg1, *args)
+    async def pricecheck_command(self, context: commands.Context, *args):
+        await pricecheck.pricecheck(self.universe, self.items, self.market, context, *args)
 
     async def start_tasks(self):
         self.market_refresh_structure_info.start()
@@ -39,3 +39,8 @@ class EVEMarketCog(commands.Cog, name="EVEMarket"):
     @tasks.loop(hours=1)
     async def market_refresh_orders(self):
         self.market.refresh_structure_market_orders()
+
+    @pricecheck_command.error
+    async def on_pricecheck_error(self, context: commands.Context, error: Exception):
+        await context.send(f"AN ERROR HAS OCCURRED: {type(error)}, {error}")
+        raise error

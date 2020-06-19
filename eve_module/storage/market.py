@@ -76,10 +76,12 @@ def sort_market_data(raw_market_data: typing.List[dict], system_id: int = None, 
     trimmed_list = list()
     if system_id:
         for market_order in raw_market_data:
-            if market_order.get("system_id", 0) == system_id:
+            if isinstance(market_order, str):
+                logger.critical(f"MARKET ORDER IS STRING FOR SOME REASON \"{market_order}\"")
+            elif market_order.get("system_id", 0) == system_id:
                 trimmed_list.append(market_order)
-
     else:
+        # print(raw_market_data)
         trimmed_list = raw_market_data
 
     trimmed_list.extend(system_bypass_list)

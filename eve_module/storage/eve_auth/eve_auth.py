@@ -7,7 +7,15 @@ import typing
 import base64
 
 
-logger = logging.getLogger("Main")
+logger = logging.getLogger("main_bot")
+
+
+"""
+PROBLEM WITH ALL OF THIS: NAMING IS INCONSISTENT.
+AUTH CODE IS WHAT YOU GET FROM THE OAUTH WEBSITES RETURN URL
+REFRESH TOKEN IS WHAT YOU GET BY USING THE AUTH CODE
+ACCESS TOKEN IS WHAT YOU GET BY (RE)USING THE REFRESH TOKEN
+"""
 
 
 class EVEAuthManager:
@@ -51,13 +59,13 @@ class EVEAuthManager:
                    "&scope={}&state={}"
         redirect_uri = urllib.parse.quote_plus(self.eve_config.callback_url)
         client_id = urllib.parse.quote_plus(self.eve_config.client_id)
-        scope = urllib.parse.quote_plus(self.eve_config.app_scopes)
+        scope = urllib.parse.quote_plus(self.eve_config.scopes)
         state = urllib.parse.quote_plus(self.eve_config.unique_state)
 
         auth_url = base_url.format(redirect_uri, client_id, scope, state)
         logger.info("Authorization URL: {}\nGo to that website, and authorize your account. You will get redirected"
                     " to the callback_url (which may result in a 404), but what you want is the access code in the"
-                    " URL. Look for \"?code=<code here>\" and paste that code in eve_auth_app_code in the config."
+                    " URL. Look for \"?code=<code here>\" and paste that code in auth_code in the eve_config."
                     "".format(auth_url))
 
     def create_refresh_token(self):
@@ -89,7 +97,9 @@ class EVEAuthManager:
             headers = {"Authorization": "Basic {}".format(auth_key),
                        "Content-Type": "application/x-www-form-urlencoded", "Host": "login.eveonline.com"}
             data_bits = {"grant_type": "refresh_token", "refresh_token": self.eve_config.refresh_token}
+            # print(f"EVE_AUTH GET ACCESS TOKEN {data_bits}")
             response = requests.post(url="https://login.eveonline.com/oauth/token", headers=headers, data=data_bits)
+            # print(f'EVE_AUTH RESPONSE {response.json()}')
             return response.json().get("access_token", None)
         else:
             logger.warning("Attempt to get access token failed, you need to set up authorization!")
