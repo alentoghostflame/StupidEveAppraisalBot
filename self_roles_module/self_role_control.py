@@ -11,14 +11,13 @@ logger = logging.getLogger("main_bot")
 
 
 async def self_role_control(guild_data: RoleSelfAssignData, context: commands.Context, arg1: str, arg2: str, arg3: str):
-    if not arg1 or (arg1 not in {"list", "add", "remove"} and arg1.lower() not in guild_data.roles):
+    if not arg1 or (arg1 not in {"list", "add", "remove", "rm"} and arg1.lower() not in guild_data.roles):
         await context.send(text.SELF_ROLE_CONTROL_MISSING_ARG_1)
     elif arg1 == "list":
-        await send_list_embed(guild_data, context)
+        await send_list_embed(guild_data, context, arg2)
     elif arg1.lower() in guild_data.roles:
         await toggle_user_role(guild_data, context, arg1)
     elif not context.author.guild_permissions.administrator:
-        # raise commands.MissingPermissions(discord.)
         await context.send(text.MISSING_ADMIN_PERMISSION)
     elif arg1 == "add":
         await add_self_role(guild_data, context, arg2, arg3)
@@ -31,14 +30,27 @@ async def self_role_control(guild_data: RoleSelfAssignData, context: commands.Co
     """
     role:
         role_name, toggles the role being on the user.
-        list, list roles
+        list (optional) role_keyword, lists roles OR list users with role_keyword
         ADMIN PERMISSION GATE
         add, adds a keyword/role
         remove | rm, removes a keyword/role
     """
 
 
-async def send_list_embed(guild_data: RoleSelfAssignData, context: commands.Context):
+async def send_list_embed(guild_data: RoleSelfAssignData, context: commands.Context, role_keyword: str):
+    if not role_keyword:
+        await send_list_embed_no_role(guild_data, context)
+    elif role_keyword.lower() not in guild_data.roles:
+        await context.send(text.SELF_ROLE_CONTROL_LIST_WRONG_ARG)
+    else:
+        role = context.guild.get_role(guild_data.roles[role_keyword.lower()])
+        if role:
+            await send_list_embed_role(context, role)
+        else:
+            await context.send(text.SELF_ROLE_CONTROL_TOGGLE_ROLE_DOESNT_EXIST)
+
+
+async def send_list_embed_no_role(guild_data: RoleSelfAssignData, context: commands.Context):
     embed = discord.Embed(title="Role List")
     guild: discord.Guild = context.guild
 
@@ -53,6 +65,20 @@ async def send_list_embed(guild_data: RoleSelfAssignData, context: commands.Cont
         embed.add_field(name="Keyword | Role", value=temp_string)
     else:
         embed.add_field(name="Keyword | Role", value="None | None")
+
+    await context.send(embed=embed)
+
+
+async def send_list_embed_role(context: commands.Context, role: discord.Role):
+    embed = discord.Embed(title=f"{role.name}")
+
+    if role.members:
+        member_text = ""
+        for member in role.members:
+            member_text += f"{member.mention}\n"
+        embed.add_field(name=f"Count: {len(role.members)}", value=member_text)
+    else:
+        embed.add_field(name="Count: 0", value="None")
 
     await context.send(embed=embed)
 
@@ -75,7 +101,6 @@ async def add_self_role(guild_data: RoleSelfAssignData, context: commands.Contex
                         role_mention: str):
     role_id = get_numbers(role_mention)
     if not role_keyword or not role_id:
-        print(f"{role_keyword}, {role_mention}, {role_id}")
         await context.send(text.SELF_ROLE_CONTROL_ADD_MISSING_ARGS)
     else:
         role = context.guild.get_role(role_id)
