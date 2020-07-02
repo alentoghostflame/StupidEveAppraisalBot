@@ -3,6 +3,7 @@ ROLE_DOESNT_EXIST = "Role not found."
 
 SELF_ROLE_CONTROL_MISSING_ARG_1 = "`role role_keyword|list|add|remove|rm` Used to self-assign a role or manage which " \
                                   "roles can be self assigned."
+SELF_ROLE_CONTROL_NO_GUILD = "This command can only be run in a server, not a DM."
 SELF_ROLE_CONTROL_LIST_WRONG_ARG = "`role list role_keyword` Lists all users who have the role."
 SELF_ROLE_CONTROL_TOGGLE_ROLE_DOESNT_EXIST = "That role doesn't exist anymore, contact an administrator?"
 SELF_ROLE_CONTROL_TOGGLE_ADDED = "Role added."

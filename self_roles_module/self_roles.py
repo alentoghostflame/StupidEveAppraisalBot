@@ -26,8 +26,11 @@ class SelfRoleCog(commands.Cog, name="Self Roles"):
 
     @commands.command(name="self_role", aliases=["role", ])
     async def self_role_command(self, context: commands.Context, arg1=None, arg2=None, arg3=None):
-        guild_data: RoleSelfAssignData = self.storage.guilds.get(context.guild.id, "self_roles_data")
-        await self_role_control(guild_data, context, arg1, arg2, arg3)
+        if context.guild:
+            guild_data: RoleSelfAssignData = self.storage.guilds.get(context.guild.id, "self_roles_data")
+            await self_role_control(guild_data, context, arg1, arg2, arg3)
+        else:
+            await context.send(text.SELF_ROLE_CONTROL_NO_GUILD)
 
     @self_role_command.error
     async def self_role_err(self, context: commands.Context, error: Exception):
