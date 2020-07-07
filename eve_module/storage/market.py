@@ -1,3 +1,4 @@
+from evelib import EVEManager
 from eve_module.storage.eve_config import EVEConfig
 from eve_module.storage.eve_auth import EVEAuthManager
 import requests
@@ -9,15 +10,18 @@ logger = logging.getLogger("main_bot")
 
 
 class MarketManager:
-    def __init__(self, eve_config: EVEConfig, auth: EVEAuthManager):
+    def __init__(self, eve_config: EVEConfig, auth: EVEAuthManager, eve_manager: EVEManager):
         self.eve_config: EVEConfig = eve_config
         self.auth: EVEAuthManager = auth
+        self.eve_manager = eve_manager
+
         self.tracked_structure_data: typing.Dict[int, dict] = dict()
         self.structure_market_data: typing.Dict[int, typing.List[dict]] = dict()
 
-    def get_item_orders(self, region_id: int, item_id: int, solar_system_id: int = None) -> \
+    async def get_item_orders(self, region_id: int, item_id: int, solar_system_id: int = None) -> \
             typing.Tuple[typing.List[dict], typing.List[dict]]:
-        raw_market_data = fetch_npc_market_data(region_id, item_id)
+        # raw_market_data = fetch_npc_market_data(region_id, item_id)
+        raw_market_data = await self.eve_manager.esi.market.get_region_orders(region_id, item_id)
         bypass_list = list()
         if solar_system_id:
             bypass_list.extend(self.get_all_structure_item_orders(solar_system_id, item_id))
@@ -42,9 +46,11 @@ class MarketManager:
                 filtered_orders.append(order)
         return filtered_orders
 
-    def refresh_structure_info(self):
+    async def refresh_structure_info(self):
         for structure_id in self.eve_config.tracked_structure_markets:
-            raw_data = self.get_structure_info(structure_id)
+            # raw_data = self.get_structure_info(structure_id)
+            token = self.auth.get_access_token()
+            raw_data = await self.eve_manager.esi.universe.get_structure_info(structure_id, token)
             self.tracked_structure_data[structure_id] = {"solar_system_id": raw_data.get("solar_system_id", 0),
                                                          "name": raw_data.get("name", "ERROR FORBIDDEN.")}
 
@@ -54,21 +60,23 @@ class MarketManager:
         raw_data = requests.get(url=base_url.format(structure_id), params={"token": token})
         return raw_data.json()
 
-    def refresh_structure_market_orders(self):
+    async def refresh_structure_market_orders(self):
         for structure_id in self.tracked_structure_data:
-            raw_market_data = self.fetch_structure_market_data(structure_id)
+            token = self.auth.get_access_token()
+            raw_market_data = await self.eve_manager.esi.market.get_structure_orders(structure_id, token)
+            # raw_market_data = self.fetch_structure_market_data(structure_id)
             self.structure_market_data[structure_id] = raw_market_data
 
-    def fetch_structure_market_data(self, structure_id: int) -> typing.List[dict]:
-        token = self.auth.get_access_token()
-        base_url = "https://esi.evetech.net/latest/markets/structures/{}/"
-        raw_market_data = requests.get(base_url.format(structure_id), params={"token": token, })
-        return raw_market_data.json()
+    # def fetch_structure_market_data(self, structure_id: int) -> typing.List[dict]:
+    #     token = self.auth.get_access_token()
+    #     base_url = "https://esi.evetech.net/latest/markets/structures/{}/"
+    #     raw_market_data = requests.get(base_url.format(structure_id), params={"token": token, })
+    #     return raw_market_data.json()
 
 
-def fetch_npc_market_data(region_id: int, item_id: int) -> typing.List[dict]:
-    base_url = "https://esi.evetech.net/latest/markets/{}/orders"
-    return requests.get(url=base_url.format(region_id), params={"type_id": item_id}).json()
+# def fetch_npc_market_data(region_id: int, item_id: int) -> typing.List[dict]:
+#     base_url = "https://esi.evetech.net/latest/markets/{}/orders"
+#     return requests.get(url=base_url.format(region_id), params={"type_id": item_id}).json()
 
 
 # noinspection PyDefaultArgument

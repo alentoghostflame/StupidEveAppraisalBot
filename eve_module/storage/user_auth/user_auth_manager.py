@@ -4,7 +4,6 @@ from eve_module.storage.eve_config import EVEConfig
 import urllib.parse
 import logging
 import aiohttp
-import asyncio
 import typing
 import base64
 import copy
@@ -31,13 +30,7 @@ class EVEUserAuthManager:
         self.eve_config: EVEConfig = self.storage.caches.get_cache("eve_config")
         self.storage.users.register_data_name("eve_auth_storage", EVEUserAuthStorage)
 
-        # self.session = aiohttp.ClientSession()
         self.session = session
-
-    # def save(self):
-    #     loop = asyncio.new_event_loop()
-    #     asyncio.set_event_loop(loop)
-    #     loop.run_until_complete(self.session.close())
 
     def create_character(self, user_id: int, character_id: int) -> dict:
         user_config: EVEUserAuthStorage = self.storage.users.get(user_id, "eve_auth_storage")
@@ -164,7 +157,6 @@ class EVEUserAuthManager:
             data_bits = {"grant_type": "refresh_token", "refresh_token": token}
             response = await self.session.post(url="https://login.eveonline.com/oauth/token", headers=headers,
                                                data=data_bits)
-
             access_token = await response.json()
             response.close()
             return access_token.get("access_token", None)
