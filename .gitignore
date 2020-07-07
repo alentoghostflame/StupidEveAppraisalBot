@@ -4,4 +4,6 @@ venv/
 logs/
 data/
 sde/
+evelib/
+evelib
 config.yaml

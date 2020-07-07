@@ -62,6 +62,7 @@ class SolarSystemData:
         self.region: int = region
         self.constellation: int = constellation
         self.name: str = name
+        self.security: int = -666
         self.planets: typing.Dict[int, PlanetData] = dict()
 
         self.name_id: int = 0
@@ -74,8 +75,9 @@ class SolarSystemData:
     def from_staticdata(self, state: dict):
         self.name_id = state.get("solarSystemNameID", 0)
         self.id = state.get("solarSystemID", 0)
+        self.security = state.get("security", -666)
         for planet_id in state.get("planets", dict()):
-            self.planets[planet_id] = PlanetData()
+            self.planets[planet_id] = PlanetData(state["planets"][planet_id], solar_system_id=self.id)
 
     def load_from_path(self, path: str):
         file = open(path, "r")
@@ -248,8 +250,13 @@ class UniverseStorage:
     #     if any_data:
     #         return any_data
     #     return None
-    def get_any(self, location_name: str):
-        location_id = self.lite_cache.get_id(location_name)
+
+    def get_any(self, location):
+        if isinstance(location, int):
+            location_id = location
+        else:
+            location_id = self.lite_cache.get_id(location)
+
         if location_id:
             if location_id in self.locations:
                 return self.locations[location_id]

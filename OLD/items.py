@@ -63,6 +63,7 @@ class ItemStorage:
         for item_id in raw_data:
             item_data = ItemData(item_id, raw_data[item_id], True)
             self.items[item_data.name.lower()] = item_data
+            self.cache.ids[item_id] = item_data.name.lower()
         logger.debug("Finished loading items from SDE.")
 
     def save_to_cache(self):
@@ -70,11 +71,17 @@ class ItemStorage:
             self.cache.items[item_name.lower()] = self.items[item_name].to_dict()
         self.cache.save()
 
-    def get_item(self, item_name: str) -> typing.Optional[ItemData]:
-        return self.items.get(item_name.lower(), None)
+    def get_item(self, item) -> typing.Optional[ItemData]:
+        if isinstance(item, str):
+            return self.items.get(item.lower(), None)
+        elif isinstance(item, int):
+            return self.items.get(self.cache.ids.get(item, 0), None)
+        else:
+            raise NotImplementedError(f"The following type is not implemented in this: {type(item)}")
 
 
 @cache_transformer(name="eve_item_cache", save_on_exit=False)
 class ItemCache:
     def __init__(self):
         self.items: typing.Dict[str, dict] = dict()
+        self.ids: typing.Dict[int, str] = dict()
