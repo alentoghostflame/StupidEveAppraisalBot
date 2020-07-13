@@ -1,10 +1,10 @@
 from eve_module.storage import MarketManager
 from evelib import EVEManager, UniverseManager, RegionData, SolarSystemData, TypeData
+from typing import Dict, List, Tuple, Optional
 from eve_module.market import text
 from discord.ext import commands
 import discord
 import logging
-from typing import Dict, List, Tuple, Optional
 
 
 logger = logging.getLogger("main_bot")
