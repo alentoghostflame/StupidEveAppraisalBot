@@ -3,6 +3,7 @@ from evelib import EVEManager
 from eve_module.storage import EVEAuthManager, EVEConfig, MarketManager, \
     EVEUserAuthManager, PlanetIntManager
 from eve_module.planetary_integration import EVEPlanetaryIntegrationCog
+from eve_module.loot_history import LootHistoryCog
 from eve_module.user_auth import EVEAuthCog
 from eve_module.market import EVEMarketCog
 from eve_module.misc import EVEMiscCog
@@ -40,6 +41,7 @@ class EVEModule:
         discord_bot.add_cog(EVEMarketCog(self.discord_bot.storage, self.eve_manager, self.market))
         discord_bot.add_cog(EVEAuthCog(self.discord_bot.storage, self.auth, self.user_auth))
         discord_bot.add_cog(EVEPlanetaryIntegrationCog(self.user_auth, self.eve_manager, self.planet_int))
+        discord_bot.add_cog(LootHistoryCog(self.eve_manager, self.market))
 
     def load(self):
         self.auth.load()
