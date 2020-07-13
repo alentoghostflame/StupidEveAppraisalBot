@@ -17,7 +17,8 @@ class EVEMiscCog(commands.Cog, name="EVEMisc"):
 
     @commands.command(name="github", brief="Quick command to link the github URL.")
     async def github(self, context):
-        await context.send("<https://github.com/alentoghostflame/StupidEveAppraisalBot>")
+        await context.send("EVE Bot code: <https://github.com/alentoghostflame/StupidEveAppraisalBot>\n"
+                           "EVE Library code: <https://github.com/alentoghostflame/EVE-Python-Library>")
 
     @commands.command(name="eve_status", brief="Get status about eve servers.")
     async def eve_status(self, context):
