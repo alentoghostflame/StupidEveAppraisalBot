@@ -10,10 +10,12 @@ INDUSTRY_JOBS_HELP_DESCRIPTION = "Gives information about industry jobs. Use `in
 INDUSTRY_JOBS_HELP_PERMISSIONS = "`industry enable`: Flags the selected character to have permissions for industry " \
                                  "jobs enabled next time your run `auth update`\n" \
                                  "`industry disable`: Does the opposite of enable, flagging permissions to be disabled."
+INDUSTRY_JOBS_HELP_INFORMATION = "`industry info` Retrieves and lists all industry jobs that are currently running " \
+                                 "or waiting to be collected."
 
 
 INDUSTRY_JOBS_ENABLED = "`esi-industry.read_character_jobs.v1` enabled, run `auth update` to update permissions."
 INDUSTRY_JOBS_DISABLED = "`esi-industry.read_character_jobs.v1` disabled, run `auth update` to update permissions."
 INDUSTRY_JOBS_TOGGLE_FAIL = "`esi-industry.read_character_jobs.v1` failed to toggle. If the selected auth character " \
                             "is valid, contact Sombra/Alento Ghostflame!"
-INDUSTRY_JOBS_INFO_EMPTY = "You have no jobs at this time?"
+INDUSTRY_JOBS_INFO_EMPTY = "You appear to have no jobs at all."
