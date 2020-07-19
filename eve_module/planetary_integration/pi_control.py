@@ -189,10 +189,20 @@ def get_time_remaining_text(time: timedelta) -> str:
     output_str = ""
 
     if time.days:
-        output_str += f"{time.days} days, "
+        # output_str += f"{time.days} days, "
+        if time.days > 1:
+            output_str += f"{time.days} days, "
+        else:
+            output_str += f"{time.days} day, "
     if time.seconds // 3600:
-        output_str += f"{time.seconds // 3600} hours, "
-    output_str += f"{time.seconds % 3600 // 60} minutes."
+        if time.seconds // 3600 > 1:
+            output_str += f"{time.seconds // 3600} hours, "
+        else:
+            output_str += f"{time.seconds // 3600} hour, "
+    if time.seconds % 3600 // 60 > 1:
+        output_str += f"{time.seconds % 3600 // 60} minutes."
+    else:
+        output_str += f"{time.seconds % 3600 // 60} minute."
 
     return output_str
 
