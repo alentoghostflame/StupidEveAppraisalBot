@@ -123,20 +123,12 @@ def get_autocomplete_items(auto_complete_cache: Dict[str, Optional[List[int]]], 
         output_list = list()
         for key_name in item_dict:
             split_key_name = key_name.lower().split(" ")
-            # logger.warning(f"Checking split name {split_key_name}")
             for i in range(len(split_key_name)):
-                # logger.warning(f"    Checking {' '.join(split_key_name[i:])}")
-                # if key_name.lower().startswith(" ".join(split_item_name[i:])):
                 if " ".join(split_key_name[-i - 1::]).startswith(item_name):
-                    # logger.warning(f"{' '.join(split_key_name[-i:])} started with {item_name}, adding to dict.")
                     output_list.append(item_dict[key_name])
                     break
             if len(output_list) > MAX_AUTOCOMPLETE:
                 break
-            # if key_name.lower().startswith(item_name.lower()):
-            #     output_list.append(item_dict[key_name])
-            # if len(output_list) > MAX_AUTOCOMPLETE:
-            #     break
 
         auto_complete_cache[item_name.lower()] = output_list
 
