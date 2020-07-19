@@ -7,7 +7,7 @@ import logging
 from typing import Dict, List, Optional, Union
 from io import StringIO
 import discord
-import yaml
+# import yaml
 import csv
 
 
@@ -44,18 +44,6 @@ class PlayerLootHistory:
             self.time_ended = item_loot.time
 
         self.item_loot.append(item_loot)
-# class ItemLootData:
-#     def __init__(self, item_data: TypeData, price_per_unit: float):
-#         self.type: TypeData = item_data
-#         self.name: str = self.type.name
-#         self.volume: float = self.type.volume
-#         self.price_per_unit: float = price_per_unit
-#
-#     def get_price(self, quantity: int, payout_percent: float = 1.0) -> float:
-#         return self.price_per_unit * quantity * payout_percent
-#
-#     def get_volume(self, quantity: int):
-#         return self.volume * quantity
 
 
 async def loot_history(eve_manager: EVEManager, market: MarketManager, context: commands.Context, filter_mode: str,
@@ -75,7 +63,6 @@ async def loot_history(eve_manager: EVEManager, market: MarketManager, context: 
     elif display_mode == "display":
         await display_loot_history(eve_manager, market, context, filter_mode, location_data, payout_percent,
                                    quantity_percent)
-        # await context.send("Unsupported at this time.")
     elif display_mode == "tsv":
         await send_loot_history_tsv(eve_manager, market, context, filter_mode, location_data, payout_percent,
                                     quantity_percent)
@@ -106,33 +93,6 @@ async def send_help_embed(context: commands.Context):
 
     await context.send(embed=embed)
 
-
-# async def display_loot_history(eve_manager: EVEManager, market: MarketManager, context: commands.Context,
-#                                filter_mode: str, location_data: Union[RegionData, SolarSystemData],
-#                                payout_percent: float = 1.0):
-#     bot_message = await context.send(text.LOOT_HISTORY_DISPLAY_LOOT_HISTORY_WAIT)
-#     loot_data = await attachment_to_filtered_list(eve_manager, market, context.message.attachments[0], filter_mode,
-#                                                   location_data)
-#     player_message = ""
-#     if loot_data:
-#         total_volume = 0
-#         total_payout = 0
-#         for character_name in loot_data:
-#             player_volume = 0
-#             player_payout = 0
-#             for looted_item in loot_data[character_name].item_loot:
-#                 player_volume += looted_item.get_volume()
-#                 player_payout += looted_item.get_price(payout_percent)
-#             player_message += f"{character_name}\n    Volume: {player_volume:,.2f} m3\n" \
-#                               f"    Est. Price: {player_payout:,.2f} ISK\n"
-#             total_volume += player_volume
-#             total_payout += player_payout
-#         total_message = f"Total Volume: {total_volume:,.2f} m3, Total ISK: {total_payout:,.2f} at " \
-#                         f"{payout_percent * 100}% payout."
-#         await bot_message.edit(content=f"Calulated using market prices from {location_data.name}\n"
-#                                        f"```{player_message}\n{total_message}```")
-#     else:
-#         await bot_message.edit(content=text.LOOT_HISTORY_NOTHING_TO_SHOW)
 
 async def display_loot_history(eve_manager: EVEManager, market: MarketManager, context: commands.Context,
                                filter_mode: str, location_data: Union[RegionData, SolarSystemData],
@@ -170,9 +130,6 @@ async def display_loot_history(eve_manager: EVEManager, market: MarketManager, c
             if "payout" in row:
                 output_string += f"\t{row['payout']:,.2f} ISK"
 
-        # await bot_message.edit(content=text.LOOT_HISTORY_LOOT_HISTORY_FILE_SUCCESS.
-        #                        format(f"Calculated using prices from {location_data.name} at {payout_percent * 100}% "
-        #                               f"payout."))
         await bot_message.edit(content=f"Calculated using market prices from "
                                        f"{location_data.name} at {payout_percent * 100}% ISK and "
                                        f"{quantity_percent * 100}% quantity payout.\n{output_string}")
@@ -189,7 +146,6 @@ async def send_loot_history_tsv(eve_manager: EVEManager, market: MarketManager, 
                                                   location_data)
 
     if loot_data:
-        # item_name_list = ["player_name"]
         item_name_list = list()
         item_data_list = list()
         data_rows = list()
@@ -226,56 +182,6 @@ async def send_loot_history_tsv(eve_manager: EVEManager, market: MarketManager, 
         await bot_message.edit(content=text.LOOT_HISTORY_NOTHING_TO_SHOW)
 
 
-#
-#
-# async def send_loot_history_yaml(eve_manager: EVEManager, market: MarketManager, context: commands.Context,
-#                                 filter_mode: str, location_data: Union[RegionData, SolarSystemData],
-#                                 payout_percent: float = 1.0, full: bool = False):
-#     bot_message = await context.send(text.LOOT_HISTORY_DISPLAY_LOOT_HISTORY_WAIT)
-#     loot_data = await attachment_to_filtered_list(eve_manager, market, context.message.attachments[0], filter_mode,
-#                                                   location_data)
-#     if loot_data:
-#         yaml_dict: Dict[str, any] = dict()
-#         total_volume = 0
-#         total_payout = 0
-#         yaml_dict["players"] = dict()
-#
-#         for character_name in loot_data:
-#             player_volume = 0
-#             player_payout = 0
-#             yaml_dict["players"][character_name] = dict()
-#             if full:
-#                 yaml_dict["players"][character_name]["item_loot"] = dict()
-#             for looted_item in loot_data[character_name].item_loot:
-#                 if full:
-#                     yaml_dict["players"][character_name]["item_loot"][looted_item.name] = \
-#                         {"volume_per_unit": looted_item.volume_per_unit, "price_per_unit": looted_item.price_per_unit,
-#                          "quantity": looted_item.quantity, "item_volume": looted_item.get_volume(),
-#                          "item_payout": looted_item.get_price(payout_percent)}
-#                 player_volume += looted_item.get_volume()
-#                 player_payout += looted_item.get_price(payout_percent)
-#             # csv_writer.writerow({"player_name": character_name, "player_volume": f"{player_volume:,.2f}",
-#             #                      "player_payout": f"{player_payout:,.2f}"})
-#             # yaml_dict["players"][character_name] = {"player_volume": player_volume, "player_payout": player_payout}
-#             yaml_dict["players"][character_name]["player_volume"] = player_volume
-#             yaml_dict["players"][character_name]["player_payout"] = player_payout
-#             total_volume += player_volume
-#             total_payout += player_payout
-#         yaml_dict["total_payout"] = total_payout
-#         yaml_dict["total_volume"] = total_volume
-#
-#         await bot_message.edit(content=text.LOOT_HISTORY_LOOT_HISTORY_FILE_SUCCESS.
-#                                format(f"Total Volume: {total_volume:,.2f} m3, Total Payout: {total_payout:,.2f}\n"
-#                                       f"Calculated using prices from {location_data.name} at {payout_percent * 100}% "
-#                                       f"payout."))
-#         fake_file = StringIO()
-#         yaml.safe_dump(yaml_dict, fake_file)
-#         fake_file.seek(0)
-#         await context.send(file=discord.File(fake_file, filename=f"Loot-Processed-{datetime.utcnow()}.yaml"))
-#     else:
-#         await bot_message.edit(content=text.LOOT_HISTORY_NOTHING_TO_SHOW)
-
-
 async def attachment_to_filtered_list(eve_manager: EVEManager, market: MarketManager, attachment: discord.Attachment,
                                       filter_mode: str, location_data: Union[RegionData, SolarSystemData]) \
         -> Optional[Dict[str, PlayerLootHistory]]:
@@ -302,20 +208,15 @@ async def attachment_to_filtered_list(eve_manager: EVEManager, market: MarketMan
                     price_per_unit = await get_price_per_unit_average(market, item_data.id, location_data.region,
                                                                       location_data.id)
 
-                # item_loot_data = ItemLootHistory(row["Item Type"], int(row["Quantity"]), item_loot_time, price_per_unit)
                 item_loot_data = ItemLootHistory(item_data, int(row["Quantity"]), item_loot_time, price_per_unit)
                 player_data.add_item(item_loot_data)
         return output_dict
     else:
         return None
-# async def attachment_to_filtered_list(eve_manager: EVEManager, market: MarketManager, attachment: discord.Attachment,
-#                                       filter_mode: str, location_data: Union[RegionData, SolarSystemData]):
-#     pass
 
 
 async def get_price_per_unit_average(market: MarketManager, item_id: int, region_id: int,
                                      solar_system_id: int = None) -> float:
-    # jita_data: SolarSystemData = eve_manager.universe.get_any("jita")
     if solar_system_id:
         buy_orders, sell_orders = await market.get_item_orders(region_id, item_id, solar_system_id)
     else:
@@ -325,7 +226,10 @@ async def get_price_per_unit_average(market: MarketManager, item_id: int, region
     for i in range(min(len(sell_orders), 3)):
         price_sum += sell_orders[i]["price"]
         count = i + 1
-    return price_sum / count
+    if count:
+        return price_sum / count
+    else:
+        return 0
 
 
 def loot_history_verifier(full_loot_history: list) -> bool:
