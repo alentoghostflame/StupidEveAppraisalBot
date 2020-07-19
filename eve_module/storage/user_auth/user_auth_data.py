@@ -11,6 +11,7 @@ DEFAULT_SCOPES: typing.Dict[str, bool] = {
     "esi-markets.structure_markets.v1": False,
     "esi-industry.read_character_mining.v1": False,
     "esi-industry.read_corporation_mining.v1": False,
+    "esi-industry.read_character_jobs.v1": False,
 }
 
 DEFAULT_CHARACTER_DATA: dict = {

@@ -100,7 +100,10 @@ class EVEAuthManager:
             # print(f"EVE_AUTH GET ACCESS TOKEN {data_bits}")
             response = requests.post(url="https://login.eveonline.com/oauth/token", headers=headers, data=data_bits)
             # print(f'EVE_AUTH RESPONSE {response.json()}')
-            return response.json().get("access_token", None)
+            if response.content:
+                return response.json().get("access_token", None)
+            else:
+                return None
         else:
             logger.warning("Attempt to get access token failed, you need to set up authorization!")
             return None

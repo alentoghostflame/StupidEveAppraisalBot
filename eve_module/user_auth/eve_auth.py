@@ -14,8 +14,10 @@ logger = logging.getLogger("main_bot")
 async def eve_auth_control(user_auth: EVEUserAuthManager, context: commands.Context, arg1: str, arg2: str):
     if context.guild:
         await context.send(text.EVE_AUTH_CONTROL_CONTEXT_HAS_GUILD)
-    elif arg1 not in {"list", "create", "delete", "select", "info", "update", "token", "gat"}:
-        await context.send(text.EVE_AUTH_CONTROL_MISSING_ARG_1)
+    # elif arg1 not in {"list", "create", "delete", "select", "info", "update", "token", "gat"}:
+    elif arg1 not in {"list", "create", "delete", "select", "update", "token", "gat"}:
+        # await context.send(text.EVE_AUTH_CONTROL_MISSING_ARG_1)
+        await send_help_embed(context)
     elif arg1 == "list":
         await send_list_embed(user_auth, context)
     elif arg1 == "create":
@@ -24,8 +26,8 @@ async def eve_auth_control(user_auth: EVEUserAuthManager, context: commands.Cont
         await delete_character(user_auth, context, arg2)
     elif arg1 == "select":
         await select_character(user_auth, context, arg2)
-    elif arg1 == "info":
-        await send_character_info_embed(user_auth, context, arg2)
+    # elif arg1 == "info":
+    #     await send_character_info_embed(user_auth, context, arg2)
     elif arg1 == "update":
         await send_update_url(user_auth, context, arg2)
     elif arg1 == "token":
@@ -47,6 +49,17 @@ async def eve_auth_control(user_auth: EVEUserAuthManager, context: commands.Cont
     """
 
 
+async def send_help_embed(context: commands.Context):
+    embed = discord.Embed(title="Authorization Manager", color=0x121A1D)
+
+    embed.add_field(name="Description", value=text.EVE_AUTH_CONTROL_HELP_DESCRIPTION, inline=False)
+    embed.add_field(name="Authorizing", value=text.EVE_AUTH_CONTROL_HELP_AUTHORIZING, inline=False)
+    embed.add_field(name="Utility", value=text.EVE_AUTH_CONTROL_HELP_UTILITY, inline=False)
+    embed.add_field(name="Information", value=text.EVE_AUTH_CONTROL_HELP_INFORMATION, inline=False)
+
+    await context.send(embed=embed)
+
+
 async def get_access_token(user_auth: EVEUserAuthManager, context: commands.Context):
     """
     THIS IS DEBUG STUFF, REMOVE WHEN DONE!
@@ -61,7 +74,14 @@ async def get_access_token(user_auth: EVEUserAuthManager, context: commands.Cont
         await context.send("You don't seem to have a selected character.")
 
 
-async def send_list_embed(user_auth: EVEUserAuthManager, context: commands.Context):
+async def send_list_embed(user_auth: EVEUserAuthManager, context: commands.Context, id_string: str = None):
+    if id_string:
+        await send_character_info_embed(user_auth, context, id_string)
+    else:
+        await send_auth_list_embed(user_auth, context)
+
+
+async def send_auth_list_embed(user_auth: EVEUserAuthManager, context: commands.Context):
     embed = discord.Embed(title="Auth Info", color=0x121A1D)
 
     char_ids, char_names = user_auth.get_all_names(context.author.id)
@@ -124,7 +144,7 @@ async def send_character_info_embed(user_auth: EVEUserAuthManager, context: comm
             permission_dict = user_auth.get_current_scopes(context.author.id, character_id)
             for permission in permission_dict:
                 permission_text += f"{permission}: {str(permission_dict[permission])}\n"
-            embed.add_field(name="Permissions", value=f"```yaml\n{permission_text}```")
+            embed.add_field(name="Permission Nodes", value=f"```yaml\n{permission_text}```")
 
             await context.send(embed=embed)
         else:

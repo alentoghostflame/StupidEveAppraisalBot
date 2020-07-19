@@ -1,4 +1,29 @@
+EVE_AUTH_CONTROL_BRIEF = "EVE authorization manager."
 EVE_AUTH_CONTROL_MISSING_ARG_1 = "`auth list|create|delete|select|info|update|token`"
+
+EVE_AUTH_CONTROL_HELP_DESCRIPTION = "Manages the level of authorization the bot has for your character(s). Most " \
+                                    "information about your account requires special authorization to access, and " \
+                                    "this command is how you give the bot access to that information. Use `auth` to " \
+                                    "list this embed."
+EVE_AUTH_CONTROL_HELP_AUTHORIZING = "`auth create`: Creates a minimal authorization profile for your character of " \
+                                    "choice. Follow the instructions listed by posting that command for more " \
+                                    "information on how to do that.\n" \
+                                    "`auth delete character_id`: Replace `character_id` with the ID of the character " \
+                                    "you no longer want the bot to have authorization for.\n" \
+                                    "`auth update`: A different part of the bot may request you to do this command " \
+                                    "update your character authorization with more or less permissions. Note, this " \
+                                    "command can be used to register new characters with permissions already set.\n" \
+                                    "`auth update force`: Same as `auth update` but forces the link even if you " \
+                                    "already have all the permissions.\n" \
+                                    "`auth token`: Used to redeem an authorization token URL."
+EVE_AUTH_CONTROL_HELP_UTILITY = "`auth select character_id`: Replace `character_id` with the ID of a character you " \
+                                "wish to have all auth-requiring commands use.\n" \
+                                "`auth gat`: Get Access Token (GAT), used for development purposes or people wanting " \
+                                "to explore what they can do."
+EVE_AUTH_CONTROL_HELP_INFORMATION = "`auth list`: Lists all the characters that the bot is authorized with along " \
+                                    "with IDs and what character you currently have selected.\n" \
+                                    "`auth list character_id`: Replace `character_id` with the ID of a character you " \
+                                    "wish to view more detailed permission-related info of."
 
 EVE_AUTH_CONTROL_SELECT_MISSING_ARG = "`auth select character_id` selects a character for the rest of the bot to " \
                                       "use. Replace `character_id` with the ID of the character listed in the " \
@@ -13,8 +38,9 @@ EVE_AUTH_CONTROL_DELETE_MISSING_ARG = "`auth delete character_id` removes a char
 EVE_AUTH_CONTROL_DELETE_SUCCESS = "Successfully deleted the character."
 EVE_AUTH_CONTROL_SELECT_SUCCESS = "Selected character set to \"{}\""
 
-EVE_AUTH_CONTROL_INFO_MISSING_ARG = "`auth info character_id` gives info about a character. Replaced `character_id` " \
-                                    "with the ID of the character listed in the command `auth list`"
+EVE_AUTH_CONTROL_INFO_MISSING_ARG = "`auth list character_id` lists permission-related info about a character. " \
+                                    "Replace `character_id` with the ID of the character listed in the command " \
+                                    "`auth list`"
 
 EVE_AUTH_CONTROL_UPDATE_SUCCESS = "<{}>\nClick on that link and authorize with the character you want to update " \
                                   "permissions for. After authorization, you will be redirected to a page that can't " \
