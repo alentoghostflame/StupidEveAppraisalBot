@@ -1,4 +1,5 @@
 EVE_AUTH_CONTROL_BRIEF = "EVE authorization manager."
+EVE_AUTH_CONTROL_COMMAND_NOT_FOUND = "Command not found, do `auth` to list all the commands."
 EVE_AUTH_CONTROL_MISSING_ARG_1 = "`auth list|create|delete|select|info|update|token`"
 
 EVE_AUTH_CONTROL_HELP_DESCRIPTION = "Manages the level of authorization the bot has for your character(s). Most " \

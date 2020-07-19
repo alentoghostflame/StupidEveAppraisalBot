@@ -1,4 +1,4 @@
-from eve_module.user_auth.commands import text
+from eve_module.user_auth import text
 from eve_module.storage import EVEUserAuthManager, ESIUnauthorized, ESIInvalidAuthCode
 from discord.ext import commands
 import urllib.parse
@@ -11,42 +11,42 @@ import re
 logger = logging.getLogger("main_bot")
 
 
-async def eve_auth_control(user_auth: EVEUserAuthManager, context: commands.Context, arg1: str, arg2: str):
-    if context.guild:
-        await context.send(text.EVE_AUTH_CONTROL_CONTEXT_HAS_GUILD)
-    # elif arg1 not in {"list", "create", "delete", "select", "info", "update", "token", "gat"}:
-    elif arg1 not in {"list", "create", "delete", "select", "update", "token", "gat"}:
-        # await context.send(text.EVE_AUTH_CONTROL_MISSING_ARG_1)
-        await send_help_embed(context)
-    elif arg1 == "list":
-        await send_list_embed(user_auth, context)
-    elif arg1 == "create":
-        await context.send(text.EVE_AUTH_CONTROL_CREATE_TEXT.format(user_auth.get_basic_eve_auth_url()))
-    elif arg1 == "delete":
-        await delete_character(user_auth, context, arg2)
-    elif arg1 == "select":
-        await select_character(user_auth, context, arg2)
-    # elif arg1 == "info":
-    #     await send_character_info_embed(user_auth, context, arg2)
-    elif arg1 == "update":
-        await send_update_url(user_auth, context, arg2)
-    elif arg1 == "token":
-        await register_token(user_auth, context, arg2)
-    elif arg1 == "gat":
-        await get_access_token(user_auth, context)
-    else:
-        await context.send(f"EVE_AUTH_CONTROL: ALL ELIFS PASSED, YOU HAVE A HOLE SOMEWHERE! \"{arg1}\", "
-                           f"\"{arg2}\". SEND THIS TO ALENTO/SOMBRA GHOSTFLAME!")
-    """
-    auth:
-        list
-        create
-        delete, ID
-        select, ID
-        info, ID
-        update, ID
-        token, token_ID
-    """
+# async def eve_auth_control(user_auth: EVEUserAuthManager, context: commands.Context, arg1: str, arg2: str):
+#     if context.guild:
+#         await context.send(text.EVE_AUTH_CONTROL_CONTEXT_HAS_GUILD)
+#     # elif arg1 not in {"list", "create", "delete", "select", "info", "update", "token", "gat"}:
+#     elif arg1 not in {"list", "create", "delete", "select", "update", "token", "gat"}:
+#         # await context.send(text.EVE_AUTH_CONTROL_MISSING_ARG_1)
+#         await send_help_embed(context)
+#     elif arg1 == "list":
+#         await send_list_embed(user_auth, context)
+#     elif arg1 == "create":
+#         await context.send(text.EVE_AUTH_CONTROL_CREATE_TEXT.format(user_auth.get_basic_eve_auth_url()))
+#     elif arg1 == "delete":
+#         await delete_character(user_auth, context, arg2)
+#     elif arg1 == "select":
+#         await select_character(user_auth, context, arg2)
+#     # elif arg1 == "info":
+#     #     await send_character_info_embed(user_auth, context, arg2)
+#     elif arg1 == "update":
+#         await send_update_url(user_auth, context, arg2)
+#     elif arg1 == "token":
+#         await register_token(user_auth, context, arg2)
+#     elif arg1 == "gat":
+#         await get_access_token(user_auth, context)
+#     else:
+#         await context.send(f"EVE_AUTH_CONTROL: ALL ELIFS PASSED, YOU HAVE A HOLE SOMEWHERE! \"{arg1}\", "
+#                            f"\"{arg2}\". SEND THIS TO ALENTO/SOMBRA GHOSTFLAME!")
+#     """
+#     auth:
+#         list
+#         create
+#         delete, ID
+#         select, ID
+#         info, ID
+#         update, ID
+#         token, token_ID
+#     """
 
 
 async def send_help_embed(context: commands.Context):
@@ -174,9 +174,7 @@ async def register_token(user_auth: EVEUserAuthManager, context: commands.Contex
     if url_string:
         url_split = url_string.split("?")
         if len(url_split) > 1:
-            # print(url_split)
             queries = urllib.parse.parse_qs(url_split[1])
-            # print(queries)
             if queries.get("code", None):
                 try:
                     character_name = await user_auth.register_refresh_token(context.author.id, queries["code"][0])
