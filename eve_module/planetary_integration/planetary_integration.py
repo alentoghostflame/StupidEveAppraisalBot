@@ -11,8 +11,7 @@ logger = logging.getLogger("main_bot")
 
 
 class EVEPlanetaryIntegrationCog(commands.Cog, name="EVEPI"):
-    def __init__(self, user_auth: EVEUserAuthManager, eve_manager: EVEManager,
-                 planet_int: PlanetIntManager):
+    def __init__(self, user_auth: EVEUserAuthManager, eve_manager: EVEManager, planet_int: PlanetIntManager):
         self.user_auth: EVEUserAuthManager = user_auth
         self.eve_manager: EVEManager = eve_manager
         self.planet_int = planet_int
