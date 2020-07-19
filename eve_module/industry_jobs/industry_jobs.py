@@ -43,7 +43,7 @@ class EVEIndustryJobCog(commands.Cog, name="EVE Industry"):
 
     @industry_job_group.command("info")
     async def industry_job_info(self, context: commands.Context):
-        if self.user_auth.get_selected_scopes(context.author.id).get("esi-planets.manage_planets.v1", None):
+        if self.user_auth.get_selected_scopes(context.author.id).get("esi-industry.read_character_jobs.v1", None):
             await industry_job_cmds.send_industry_info_embed(self.eve_manager, self.user_auth, context)
         else:
             raise AuthScopeMissing
