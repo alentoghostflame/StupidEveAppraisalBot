@@ -1,6 +1,6 @@
 from eve_module.user_auth import text
 from alento_bot import StorageManager
-from eve_module.storage import EVEAuthManager, EVEUserAuthManager
+from eve_module.storage import EVEUserAuthManager
 from eve_module.user_auth import eve_auth
 from discord.ext import commands
 import logging
@@ -66,13 +66,3 @@ class EVEAuthCog(commands.Cog, name="EVE Auth"):
     async def on_guild_check_error(self, context: commands.Context, error: Exception):
         if isinstance(error, commands.CheckFailure):
             await context.send(text.EVE_AUTH_CONTROL_CONTEXT_HAS_GUILD)
-
-    # @commands.command(name="gat")
-    # async def debug_get_access_token(self, context: commands.Context):
-    #     """
-    #     THIS IS DEBUG AND SHOULD BE REMOVED LATER
-    #     :param context:
-    #     :return:
-    #     """
-    #     token = self.auth.get_access_token()
-    #     await context.send(f"Token: ```{token}```")
