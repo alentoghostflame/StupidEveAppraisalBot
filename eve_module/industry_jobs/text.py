@@ -1,5 +1,6 @@
 CLIENTOSERROR = "A networking issue occurred, try again later? If this keeps happening, contact " \
                                  "Alento/Sombra Ghostflame."
+INDUSTRY_JOBS_BRIEF = "Shows info related to your Industrial Jobs."
 NO_AUTH_SELECTED_CHARACTER = "It doesn't appear you have a selected character, do `auth select` to find out more."
 INDUSTRY_JOBS_AUTH_SCOPE_FALSE = "You are missing the `esi-industry.read_character_jobs.v1` scope required for this " \
                                  "feature, set it to be enabled by doing `industry enable`"
