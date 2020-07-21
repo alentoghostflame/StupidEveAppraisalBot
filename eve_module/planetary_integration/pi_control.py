@@ -12,39 +12,13 @@ import re
 logger = logging.getLogger("main_bot")
 
 
-async def pi_control(user_auth: EVEUserAuthManager, planet_int: PlanetIntManager, context: commands.Context, arg1: str,
-                     arg2: str):
-    user_scopes = user_auth.get_selected_scopes(context.author.id)
-    if not user_scopes:
-        await context.send(text.NO_AUTH_SELECTED_CHARACTER)
-    elif not arg1:
-        await send_help_embed(context)
-    elif arg1 not in {"enable", "disable", "update", "info", "planet"}:
-        await context.send(text.PI_CONTROL_MISSING_ARG_1)
-    elif user_scopes.get("esi-planets.manage_planets.v1", None) is None:
-        await context.send(text.AUTH_SCOPE_MISSING.format("esi-planets.manage_planets.v1"))
-    elif arg1 == "enable":
-        await enable_pi(user_auth, context)
-    elif not user_scopes.get("esi-planets.manage_planets.v1", None):
-        await context.send(text.PI_CONTROL_SCOPE_FALSE)
-    elif arg1 == "disable":
-        await disable_pi(user_auth, context)
-    elif arg1 == "update":
-        await update_control(user_auth, planet_int, context, arg2)
-    elif arg1 == "info":
-        await send_info_embed(user_auth, planet_int, context, arg2)
-    else:
-        await context.send(f"PI_CONTROL: ALL ELIFS PASSED, YOU HAVE A HOLE SOMEWHERE! \"{arg1}\", "
-                           f"\"{arg2}\". SEND THIS TO ALENTO/SOMBRA GHOSTFLAME!")
-
-
 async def send_help_embed(context: commands.Context):
     embed = discord.Embed(title="Planetary Interaction", color=0x8CB1DE)
 
-    embed.add_field(name="Description", value=text.PI_CONTROL_HELP_DESCRIPTION, inline=False)
-    embed.add_field(name="Permissions", value=text.PI_CONTROL_HELP_COMMAND_PERMISSION, inline=False)
-    embed.add_field(name="Updating", value=text.PI_CONTROL_HELP_COMMAND_UPDATE, inline=False)
-    embed.add_field(name="Information", value=text.PI_CONTROL_HELP_COMMAND_INFORMATION, inline=False)
+    embed.add_field(name="Description", value=text.PI_HELP_DESCRIPTION, inline=False)
+    embed.add_field(name="Permissions", value=text.PI_HELP_PERMISSION, inline=False)
+    embed.add_field(name="Updating", value=text.PI_HELP_UPDATE, inline=False)
+    embed.add_field(name="Information", value=text.PI_HELP_INFORMATION, inline=False)
 
     await context.send(embed=embed)
 
@@ -61,6 +35,39 @@ async def disable_pi(user_auth: EVEUserAuthManager, context: commands.Context):
         await context.send(text.PI_CONTROL_DISABLE_SUCCESS)
     else:
         await context.send(text.PI_CONTROL_INVALID_CHAR_OR_PERMISSION)
+
+
+async def send_update_help_embed(context: commands.Context):
+    embed = discord.Embed(title="PI Update", color=0x8CB1DE)
+
+    embed.add_field(name="Description", value=text.PI_UPDATE_HELP_DESCRIPTION, inline=False)
+    embed.add_field(name="Commands", value=text.PI_UPDATE_HELP_COMMANDS, inline=False)
+
+    await context.send(embed=embed)
+
+
+async def update_full(user_auth: EVEUserAuthManager, planet_int: PlanetIntManager, context: commands.Context):
+    await planet_int.update_pi(context.author.id, user_auth.get_selected(context.author.id), context)
+    await send_info_embed(user_auth, planet_int, context)
+
+
+async def update_basic(user_auth: EVEUserAuthManager, planet_int: PlanetIntManager, context: commands.Context):
+    await planet_int.update_pi_info(context.author.id, user_auth.get_selected(context.author.id))
+    await context.send(text.PI_CONTROL_UPDATE_BASIC_SUCCESS)
+    await send_info_embed(user_auth, planet_int, context)
+
+
+async def update_planet(user_auth: EVEUserAuthManager, planet_int: PlanetIntManager, context: commands.Context,
+                        arg: str):
+    planet_id = get_numbers(arg)
+    if planet_id:
+        if await planet_int.update_pi_planet(context.author.id, user_auth.get_selected(context.author.id), planet_id):
+            await context.send(text.PI_CONTROL_UPDATE_PLANET_SUCCESS.format(planet_id))
+            await send_planet_info_embed(user_auth, planet_int, context, arg)
+        else:
+            await context.send(text.PI_INVALID_PLANET.format(planet_id))
+    else:
+        await context.send(text.PI_INVALID_PLANET.format(arg))
 
 
 async def update_control(user_auth: EVEUserAuthManager, planet_int: PlanetIntManager, context: commands.Context,
@@ -189,7 +196,6 @@ def get_time_remaining_text(time: timedelta) -> str:
     output_str = ""
 
     if time.days:
-        # output_str += f"{time.days} days, "
         if time.days > 1:
             output_str += f"{time.days} days, "
         else:
