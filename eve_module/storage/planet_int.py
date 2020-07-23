@@ -191,7 +191,7 @@ class PlanetIntManager:
         # self.items = items
         # self.universe = universe
         self.eve_manager = eve_manager
-        self.session = session
+        # self.session = session
 
         self.storage.users.register_data_name("planetary_interaction_data", PlanetIntData)
         self.schematics = SchematicManager(self.eve_config)
@@ -212,35 +212,46 @@ class PlanetIntManager:
         await bot_message.edit(content="PI info is fully updated.")
 
     async def update_pi_info(self, user_id: int, character_id: int):
-        url = f"https://esi.evetech.net/latest/characters/{character_id}/planets/"
+        # url = f"https://esi.evetech.net/latest/characters/{character_id}/planets/"
         token = await self.auth.get_access_token(user_id, character_id)
-        response = await self.session.get(url=url, params={"token": token})
-        raw_pi_info = await response.json()
-        response.close()
+        # response = await self.session.get(url=url, params={"token": token})
+        # raw_pi_info = await response.json()
+        # response.close()
+        raw_pi_info = await self.eve_manager.esi.pi.get_basic_pi_raw(character_id, token)
 
         planet_int_data: PlanetIntData = self.storage.users.get(user_id, "planetary_interaction_data")
         planet_int_data.pi_info[character_id] = raw_pi_info
 
     async def update_pi_planet(self, user_id: int, character_id: int, planet_id: int) -> bool:
-        url = f"https://esi.evetech.net/latest/characters/{character_id}/planets/{planet_id}/"
+        # url = f"https://esi.evetech.net/latest/characters/{character_id}/planets/{planet_id}/"
         token = await self.auth.get_access_token(user_id, character_id)
-        response = await self.session.get(url=url, params={"token": token})
-        pi_response = await response.json()
-        response.close()
-
-        if response.status == 200:
+        raw_data = await self.eve_manager.esi.pi.get_planet_pi_raw(character_id, planet_id, token)
+        if raw_data:
             planet_int_data: PlanetIntData = self.storage.users.get(user_id, "planetary_interaction_data")
             if character_id not in planet_int_data.planet_pi:
                 planet_int_data.planet_pi[character_id] = dict()
 
-            planet_int_data.planet_pi[character_id][planet_id] = pi_response
+            planet_int_data.planet_pi[character_id][planet_id] = raw_data
             return True
-
-        elif response.status == 404:
-            return False
         else:
-            raise PIBadResponse(f"UPDATE_PI_PLANET: BAD RESPONSE CODE, {user_id} {character_id} {planet_id} "
-                                f"{response.status}")
+            return False
+        # response = await self.session.get(url=url, params={"token": token})
+        # pi_response = await response.json()
+        # response.close()
+        #
+        # if response.status == 200:
+        #     planet_int_data: PlanetIntData = self.storage.users.get(user_id, "planetary_interaction_data")
+        #     if character_id not in planet_int_data.planet_pi:
+        #         planet_int_data.planet_pi[character_id] = dict()
+        #
+        #     planet_int_data.planet_pi[character_id][planet_id] = pi_response
+        #     return True
+        #
+        # elif response.status == 404:
+        #     return False
+        # else:
+        #     raise PIBadResponse(f"UPDATE_PI_PLANET: BAD RESPONSE CODE, {user_id} {character_id} {planet_id} "
+        #                         f"{response.status}")
 
     def get_planet_pi(self, user_id: int, character_id: int, planet_id: int) -> typing.Optional[PlanetPIInfo]:
         planet_int_data: PlanetIntData = self.storage.users.get(user_id, "planetary_interaction_data")
