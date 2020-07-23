@@ -25,13 +25,13 @@ class EVEIndustryJobCog(commands.Cog, name="EVE Industry"):
 
     @commands.group(name="industry", brief=text.INDUSTRY_JOBS_BRIEF)
     async def industry_job_group(self, context: commands.Context):
-        if not self.user_auth.get_selected_scopes(context.author.id):
-            raise AuthNoSelected
-        elif context.invoked_subcommand is None:
+        if context.invoked_subcommand is None:
             if context.message.content.strip() == f"{context.prefix}{context.command.name}":
                 await industry_job_cmds.send_help_embed(context)
             else:
                 await context.send(text.INDUSTRY_JOBS_INVALID_SUBCOMMAND)
+        elif not self.user_auth.get_selected_scopes(context.author.id):
+            raise AuthNoSelected
 
     @industry_job_group.command(name="enable")
     async def industry_job_enable(self, context: commands.Context):
