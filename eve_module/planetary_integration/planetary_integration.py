@@ -1,5 +1,5 @@
 from eve_module.storage import EVEUserAuthManager, PlanetIntManager
-from evelib import EVEManager
+from evelib import EVEManager, esi
 from eve_module.planetary_integration import pi_control
 from eve_module.planetary_integration import text
 from discord.ext import commands
@@ -74,19 +74,24 @@ class EVEPlanetaryIntegrationCog(commands.Cog, name="EVEPI"):
             raise AuthScopeMissing
 
     @pi_group.error
-    async def on_auth_no_selected_error(self, context: commands.Context, error: Exception):
+    @pi_update_full.error
+    @pi_update_basic.error
+    @pi_info.error
+    async def on_pi_error(self, context: commands.Context, error: Exception):
         if isinstance(error, AuthNoSelected):
             await context.send(text.NO_AUTH_SELECTED_CHARACTER)
         elif isinstance(error, ClientOSError):
             await context.send(text.CLIENTOSERROR)
+        elif isinstance(error, AuthScopeMissing):
+            await context.send(text.PI_AUTH_SCOPE_FALSE)
+        elif isinstance(error, esi.ESIServiceUnavailable):
+            await context.send(text.PI_SERVICE_UNAVAILABLE)
         else:
             await context.send(f"A critical error occurred: {type(error)}: {error}\nSEND THIS TO ALENTO/SOMBRA "
                                f"GHOSTFLAME!")
             raise error
 
-    @pi_update_full.error
-    @pi_update_basic.error
-    @pi_info.error
+
     async def on_auth_scope_missing_error(self, context: commands.Context, error: Exception):
         if isinstance(error, AuthScopeMissing):
             await context.send(text.PI_AUTH_SCOPE_FALSE)

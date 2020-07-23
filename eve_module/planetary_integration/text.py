@@ -1,5 +1,6 @@
 CLIENTOSERROR = "A networking issue occurred, try again later? If this keeps happening, contact " \
                                  "Alento/Sombra Ghostflame."
+PI_SERVICE_UNAVAILABLE = "Service unavailable, something is happening on EVEs side. Please try again later..."
 NO_AUTH_SELECTED_CHARACTER = "It doesn't appear you have a selected character, do `auth select` to find out more."
 AUTH_SCOPE_MISSING = "Auth scope {} is missing, contact Alento/Sombra Ghostflame immediately!"
 PI_AUTH_SCOPE_FALSE = "You are missing the `esi-planets.manage_planets.v1` scope required for this " \
