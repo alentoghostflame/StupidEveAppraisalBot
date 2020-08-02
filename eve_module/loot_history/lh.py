@@ -112,7 +112,11 @@ async def display_loot_history(eve_manager: EVEManager, market: MarketManager, c
                 if looted_item.name not in item_name_list:
                     item_name_list.append(looted_item.name)
                     item_data_list.append(looted_item)
-                player_dict[looted_item.name] = looted_item.quantity * quantity_percent
+                # player_dict[looted_item.name] = looted_item.quantity * quantity_percent
+                if looted_item.name in player_dict:
+                    player_dict[looted_item.name] += looted_item.quantity * quantity_percent
+                else:
+                    player_dict[looted_item.name] = looted_item.quantity * quantity_percent
                 player_payout += looted_item.get_price(payout_percent) * quantity_percent
             player_dict["payout"] = player_payout
             data_rows.append(player_dict)
@@ -157,7 +161,10 @@ async def send_loot_history_tsv(eve_manager: EVEManager, market: MarketManager, 
                 if looted_item.name not in item_name_list:
                     item_name_list.append(looted_item.name)
                     item_data_list.append(looted_item)
-                player_dict[looted_item.name] = looted_item.quantity * quantity_percent
+                if looted_item.name in player_dict:
+                    player_dict[looted_item.name] += looted_item.quantity * quantity_percent
+                else:
+                    player_dict[looted_item.name] = looted_item.quantity * quantity_percent
                 player_payout += looted_item.get_price(payout_percent) * quantity_percent
             player_dict["payout"] = player_payout
             data_rows.append(player_dict)
