@@ -136,7 +136,7 @@ def get_autocomplete_items(auto_complete_cache: Dict[str, Optional[List[int]]], 
 
 
 def human_format(number: int, dec: int = 2, small_dec: int = 2):
-    units = ["", "K", "M", "G", "T", "P"]
+    units = ["", "K", "M", "B", "T", "Q"]
     temp_num = number
     magnitude = 0
     while temp_num > 10000 and not (magnitude == 0 and temp_num < 100000):
