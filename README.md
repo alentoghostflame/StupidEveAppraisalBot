@@ -1,3 +1,7 @@
+# Notice of Deprecation
+Everything here (and a bit more) has been merged with [StupidAlentoBot](https://github.com/alentoghostflame/StupidAlentoBot).
+This repo will no longer be updated, and StupidAlentoBot should be used instead.
+
 # StupidEveAppraisalBot
 Discord bot for getting trading prices fast for EVE Online.
 
